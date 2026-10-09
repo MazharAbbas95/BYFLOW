@@ -1,0 +1,331 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         String   @default("CUSTOMER") // Default global role (CUSTOMER, OWNER, STAFF)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedShops            Shop[]
+  memberships           ShopMember[]
+  customerBookings      Booking[]          @relation("CustomerBookings")
+  technicianBookings    Booking[]          @relation("TechnicianBookings")
+  partsPersonBookings   Booking[]          @relation("PartsPersonBookings")
+  qcInspectorBookings   Booking[]          @relation("QcInspectorBookings")
+  vehicles              Vehicle[]
+  notifications         Notification[]
+  bookingHistory        BookingHistory[]
+  qcIssues              QcIssue[]
+  purchaseOrders        PurchaseOrder[]
+}
+
+model Shop {
+  id           String   @id @default(uuid())
+  name         String
+  address      String
+  city         String
+  phone        String
+  workingHours String   @default("09:00 - 18:00")
+  slotDuration Int      @default(60) // in minutes
+  slotCapacity Int      @default(2)  // max concurrent cars per slot
+  rating       Float    @default(4.9)
+  logo         String?
+  ownerId      String
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  members        ShopMember[]
+  services       ServiceCatalog[]
+  timeSlots      TimeSlot[]
+  inventory      InventoryItem[]
+  bookings       Booking[]
+  purchaseOrders PurchaseOrder[]
+  callLogs       CallLog[]
+  aiTasks        AIFronDeskTask[]
+}
+
+model ShopMember {
+  id        String   @id @default(uuid())
+  shopId    String
+  userId    String
+  role      String   // OWNER, SERVICE_ADVISOR, TECHNICIAN, PARTS_PERSON, QC_INSPECTOR
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, userId])
+}
+
+model ServiceCatalog {
+  id                String   @id @default(uuid())
+  shopId            String
+  name              String
+  description       String
+  estimatedDuration Int      @default(60)
+  basePrice         Float    @default(0.0)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
+
+model TimeSlot {
+  id          String   @id @default(uuid())
+  shopId      String
+  date        String   // YYYY-MM-DD
+  startTime   String   // e.g. "09:00"
+  endTime     String   // e.g. "10:00"
+  capacity    Int      @default(2)
+  bookedCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shop     Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@unique([shopId, date, startTime])
+}
+
+model Vehicle {
+  id                String   @id @default(uuid())
+  customerId        String
+  registrationPlate String
+  make              String
+  model             String
+  year              Int
+  color             String?
+  mileage           Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer User      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+}
+
+model Booking {
+  id               String   @id @default(uuid())
+  reference        String   @unique // e.g. BF-2026-001
+  shopId           String
+  customerId       String
+  vehicleId        String
+  timeSlotId       String?
+  bookingDate      String
+  bookingTime      String
+  selectedServices String   // JSON string of array
+  reportedProblem  String
+  status           String   @default("PENDING")
+  technicianId     String?
+  partsPersonId    String?
+  qcInspectorId    String?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  shop            Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  customer        User             @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Cascade)
+  vehicle         Vehicle          @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  timeSlot        TimeSlot?        @relation(fields: [timeSlotId], references: [id])
+  technician      User?            @relation("TechnicianBookings", fields: [technicianId], references: [id])
+  partsPerson     User?            @relation("PartsPersonBookings", fields: [partsPersonId], references: [id])
+  qcInspector     User?            @relation("QcInspectorBookings", fields: [qcInspectorId], references: [id])
+  estimates       Estimate[]
+  history         BookingHistory[]
+  partAllocations PartAllocation[]
+  qcIssues        QcIssue[]
+  callLogs        CallLog[]
+  aiTasks         AIFronDeskTask[]
+  purchaseOrders  PurchaseOrder[]
+}
+
+model BookingHistory {
+  id         String   @id @default(uuid())
+  bookingId  String
+  userId     String?
+  userName   String
+  userRole   String
+  fromStatus String
+  toStatus   String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+}
+
+model Estimate {
+  id              String    @id @default(uuid())
+  bookingId       String
+  revision        Int       @default(1)
+  laborCost       Float     @default(0.0)
+  partsCost       Float     @default(0.0)
+  totalCost       Float     @default(0.0)
+  status          String    @default("DRAFT") // DRAFT, SUBMITTED_TO_SA, SENT_TO_CUSTOMER, APPROVED, REJECTED
+  submittedById   String?
+  reviewedById    String?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  booking   Booking            @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  lineItems EstimateLineItem[]
+}
+
+model EstimateLineItem {
+  id              String  @id @default(uuid())
+  estimateId      String
+  partInventoryId String?
+  partName        String
+  quantity        Int     @default(1)
+  unitCost        Float   @default(0.0)
+  totalCost       Float   @default(0.0)
+
+  estimate      Estimate       @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  partInventory InventoryItem? @relation(fields: [partInventoryId], references: [id])
+}
+
+model InventoryItem {
+  id             String   @id @default(uuid())
+  shopId         String
+  sku            String
+  name           String
+  quantityOnHand Int      @default(0)
+  reorderLevel   Int      @default(5)
+  costPrice      Float    @default(0.0)
+  sellPrice      Float    @default(0.0)
+  category       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  shop        Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  lineItems   EstimateLineItem[]
+  allocations PartAllocation[]
+  poItems     PurchaseOrderItem[]
+
+  @@unique([shopId, sku])
+}
+
+model PurchaseOrder {
+  id           String   @id @default(uuid())
+  shopId       String
+  poNumber     String   @unique
+  supplierName String
+  status       String   @default("ORDERED") // ORDERED, PARTIALLY_RECEIVED, RECEIVED
+  bookingId    String?
+  createdById  String
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  shop      Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  booking   Booking?            @relation(fields: [bookingId], references: [id])
+  createdBy User                @relation(fields: [createdById], references: [id])
+  items     PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id               String @id @default(uuid())
+  purchaseOrderId  String
+  inventoryItemId  String
+  quantityOrdered  Int
+  quantityReceived Int    @default(0)
+  unitCost         Float  @default(0.0)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+}
+
+model PartAllocation {
+  id              String    @id @default(uuid())
+  bookingId       String
+  inventoryItemId String
+  quantity        Int
+  status          String    @default("ALLOCATED") // ALLOCATED, RELEASED
+  allocatedAt     DateTime  @default(now())
+  releasedAt      DateTime?
+
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+}
+
+model QcIssue {
+  id             String    @id @default(uuid())
+  bookingId      String
+  inspectorId    String
+  title          String
+  description    String
+  status         String    @default("OPEN") // OPEN, RESOLVED
+  resolutionNote String?
+  resolvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  inspector User    @relation(fields: [inspectorId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  shopId    String?
+  bookingId String?
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CallLog {
+  id              String    @id @default(uuid())
+  bookingId       String?
+  shopId          String
+  callerId        String
+  receiverId      String
+  callerRole      String
+  receiverRole    String
+  status          String    @default("RINGING") // RINGING, CONNECTED, ENDED, MISSED
+  durationSeconds Int       @default(0)
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  shop    Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+}
+
+model AIFronDeskTask {
+  id              String    @id @default(uuid())
+  shopId          String
+  bookingId       String?
+  callerName      String
+  callerPhone     String
+  intent          String
+  sentiment       String    @default("NEUTRAL") // POSITIVE, NEUTRAL, URGENT, CONCERNED
+  summary         String
+  taskDescription String
+  status          String    @default("OPEN") // OPEN, DONE
+  transcript      String    // JSON array of dialog turns
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  shop    Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id])
+}

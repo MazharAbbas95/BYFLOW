@@ -1,0 +1,38 @@
+{
+  "name": "bayflow-backend",
+  "version": "1.0.0",
+  "description": "BayFlow Multi-Tenant Auto Repair Shop Platform Backend API",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:migrate": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "tsx test/api.test.ts"
+  },
+  "keywords": ["bayflow", "auto-repair", "multi-tenant", "pos"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^20.14.9",
+    "@types/ws": "^8.5.12",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  }
+}
