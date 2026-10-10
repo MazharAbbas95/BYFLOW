@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-shop-id'],
 }));
 
@@ -43,6 +43,18 @@ app.use('/api', callRoutes); // For /api/ai-front-desk
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    app: 'BayFlow API & WebSocket Server',
+    endpoints: {
+      health: '/api/health',
+      websocket: '/ws',
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -90,7 +102,7 @@ wss.on('connection', (ws: WebSocket, req) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`🚀 BayFlow API server running on http://localhost:${PORT}`);
   console.log(`📡 WebSocket server listening on ws://localhost:${PORT}/ws`);
 });

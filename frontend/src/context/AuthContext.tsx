@@ -94,6 +94,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
 
     let wsUrl: string;
+    const isProduction = typeof window !== 'undefined' && 
+      window.location.hostname !== 'localhost' && 
+      window.location.hostname !== '127.0.0.1';
+
     if (import.meta.env.VITE_WS_URL) {
       wsUrl = import.meta.env.VITE_WS_URL;
     } else if (import.meta.env.VITE_API_URL) {
@@ -102,8 +106,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
         wsUrl = `${wsProtocol}//${parsed.host}/ws`;
       } catch {
-        wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+        wsUrl = isProduction ? 'wss://byflow.onrender.com/ws' : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
       }
+    } else if (isProduction) {
+      wsUrl = 'wss://byflow.onrender.com/ws';
     } else {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       wsUrl = `${protocol}//${window.location.host}/ws`;

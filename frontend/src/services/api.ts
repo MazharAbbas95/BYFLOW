@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const backendUrl = import.meta.env.VITE_API_URL || '';
+const isProduction = typeof window !== 'undefined' && 
+  window.location.hostname !== 'localhost' && 
+  window.location.hostname !== '127.0.0.1';
+
+const backendUrl = import.meta.env.VITE_API_URL || (isProduction ? 'https://byflow.onrender.com' : '');
 export const api = axios.create({
   baseURL: backendUrl ? `${backendUrl.replace(/\/$/, '')}/api` : '/api',
 });
