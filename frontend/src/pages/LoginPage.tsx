@@ -26,8 +26,12 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setErrorMessage('');
     try {
-      await login(email, password);
-      navigate('/pos');
+      const loggedInUser: any = await login(email, password);
+      if (loggedInUser?.role === 'CUSTOMER') {
+        navigate('/portal');
+      } else {
+        navigate('/pos');
+      }
     } catch (err: any) {
       setErrorMessage(err.message || 'Invalid email or password.');
     }

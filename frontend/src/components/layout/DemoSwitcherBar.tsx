@@ -1,9 +1,11 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { UserCheck, Shield, Wrench, CheckCircle2, Package, Car, RefreshCw } from 'lucide-react';
+import { UserCheck, Shield, Wrench, CheckCircle2, Package, Car, Lock, LogOut } from 'lucide-react';
 
 export const DemoSwitcherBar: React.FC = () => {
-  const { user, switchDemoUser, currentRole, isLoading } = useAuth();
+  const { user, switchDemoUser, currentRole, isLoading, currentShop, logout } = useAuth();
+
+  const isOwner = user?.role === 'OWNER';
 
   const demoAccounts = [
     {
@@ -56,15 +58,52 @@ export const DemoSwitcherBar: React.FC = () => {
     },
   ];
 
+  // If a non-owner staff member or customer is logged in, hide the role switcher buttons so they cannot switch roles
+  if (user && !isOwner) {
+    return (
+      <div className="bg-slate-900 border-b border-slate-800 text-white py-1.5 px-4 shadow-inner">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+              <Lock className="w-3 h-3 text-emerald-400 inline" />
+              <span>Dedicated Staff Terminal</span>
+            </span>
+            <span className="text-slate-400 text-[11px]">
+              Logged in as <strong className="text-white">{user.name}</strong> • Role in Company:{' '}
+              <span className="px-2 py-0.5 rounded bg-brand-900 text-brand-300 font-bold uppercase text-[10px]">
+                {(currentRole || user.role).replace(/_/g, ' ')}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-3 text-[11px]">
+            <span className="text-slate-400 hidden sm:inline">
+              Tenant: <strong className="text-slate-300">{currentShop?.name || 'Workshop'}</strong>
+            </span>
+            <button
+              onClick={logout}
+              className="text-slate-400 hover:text-rose-400 flex items-center space-x-1 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Shop Owner or Unauthenticated visitor sees full sandbox role switcher
   return (
     <div className="bg-slate-900 border-b border-slate-800 text-white py-2 px-4 shadow-inner">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500 text-white uppercase tracking-wider">
-            Role Switcher
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500 text-slate-950 uppercase tracking-wider">
+            {isOwner ? 'Owner Master Switcher' : 'Demo Sandbox'}
           </span>
           <span className="text-slate-300 font-medium hidden sm:inline">
-            Sandbox Accounts:
+            {isOwner ? 'Inspect Any Staff Role View:' : 'Quick Sign-In Accounts:'}
           </span>
         </div>
 
@@ -99,8 +138,8 @@ export const DemoSwitcherBar: React.FC = () => {
             <span className="text-white font-semibold underline decoration-slate-600">
               {user.name}
             </span>
-            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 uppercase text-[10px] font-mono">
-              {currentRole || user.role}
+            <span className="px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 uppercase text-[10px] font-mono font-bold">
+              {isOwner ? 'Shop Owner' : currentRole || user.role}
             </span>
           </div>
         )}

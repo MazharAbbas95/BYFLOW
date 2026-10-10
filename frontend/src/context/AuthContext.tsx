@@ -12,7 +12,7 @@ interface AuthContextType {
   unreadCount: number;
   isLoading: boolean;
   incomingCall: any | null;
-  login: (email: string, password?: string) => Promise<void>;
+  login: (email: string, password?: string) => Promise<User | void>;
   registerOwner: (data: any) => Promise<void>;
   logout: () => void;
   switchDemoUser: (email: string) => Promise<void>;
@@ -140,6 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('bayflow_token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
+      return res.data.user;
     } finally {
       setIsLoading(false);
     }

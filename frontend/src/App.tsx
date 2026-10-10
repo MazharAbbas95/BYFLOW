@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/layout/Navbar';
-import { DemoSwitcherBar } from './components/layout/DemoSwitcherBar';
 import { LandingPage } from './pages/LandingPage';
 import { BookingWizard } from './pages/BookingWizard';
 import { CustomerDashboard } from './pages/CustomerDashboard';
@@ -18,9 +17,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
-      {/* Judge Mode 1-Click Role Switcher */}
-      <DemoSwitcherBar />
-
       {/* Main Navigation */}
       <Navbar onOpenAiFrontDesk={() => setShowGlobalAiModal(true)} />
 

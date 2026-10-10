@@ -213,7 +213,19 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
                       to="/pos"
                       className="px-3.5 py-2 text-xs font-black uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-md shadow-blue-600/30 transition-all flex items-center space-x-1"
                     >
-                      <span>Shop POS</span>
+                      <span>
+                        {user.role === 'OWNER'
+                          ? 'Owner Console'
+                          : currentRole === 'TECHNICIAN'
+                          ? 'Technician Terminal'
+                          : currentRole === 'SERVICE_ADVISOR'
+                          ? 'Advisor Counter'
+                          : currentRole === 'QC_INSPECTOR'
+                          ? 'QC Terminal'
+                          : currentRole === 'PARTS_PERSON'
+                          ? 'Parts Counter'
+                          : 'Staff Terminal'}
+                      </span>
                       <ArrowRight className="w-3 h-3" />
                     </Link>
                   )}
