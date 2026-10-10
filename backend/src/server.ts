@@ -14,6 +14,7 @@ import notificationRoutes from './routes/notificationRoutes';
 import callRoutes from './routes/callRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import vehicleRoutes from './routes/vehicleRoutes';
+import chatbotRoutes from './routes/chatbotRoutes';
 import { registerWebSocketClient, broadcastToUser } from './services/notificationService';
 
 dotenv.config();
@@ -41,6 +42,7 @@ app.use('/api/calls', callRoutes);
 app.use('/api', callRoutes); // For /api/ai-front-desk
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({

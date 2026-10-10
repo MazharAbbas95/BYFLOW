@@ -10,6 +10,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterOwnerPage } from './pages/RegisterOwnerPage';
 import { CallModal } from './components/calling/CallModal';
 import { AIFrontDeskModal } from './components/calling/AIFrontDeskModal';
+import { ChatbotWidget } from './components/chatbot/ChatbotWidget';
 
 const AppContent: React.FC = () => {
   const { incomingCall, clearIncomingCall, currentShop, user } = useAuth();
@@ -32,6 +33,9 @@ const AppContent: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
+      {/* Floating Chatbot Assistant (Bottom Right) */}
+      <ChatbotWidget />
 
       {/* Realtime Incoming Call Popup (WebRTC) */}
       {incomingCall && (
