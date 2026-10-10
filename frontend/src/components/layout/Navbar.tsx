@@ -150,49 +150,78 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
                       )}
                     </button>
 
-                    {/* Notification Dropdown */}
+                    {/* Notification Panel — fixed fullscreen on mobile, dropdown on sm+ */}
                     {showNotifications && (
-                      <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-sm bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
-                        <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                          <div className="font-bold text-sm text-slate-900">Notifications</div>
-                          {unreadCount > 0 && (
-                            <button
-                              onClick={markAllNotificationsRead}
-                              className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
-                            >
-                              Mark all read
-                            </button>
-                          )}
-                        </div>
-                        <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-                          {notifications.length === 0 ? (
-                            <div className="px-4 py-8 text-center text-xs text-slate-400">
-                              No notifications right now.
-                            </div>
-                          ) : (
-                            notifications.map((n) => (
-                              <div
-                                key={n.id}
-                                onClick={() => markNotificationRead(n.id)}
-                                className={`px-4 py-3 text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
-                                  !n.isRead ? 'bg-blue-50/50 border-l-2 border-blue-600' : ''
-                                }`}
+                      <>
+                        {/* Mobile backdrop */}
+                        <div
+                          className="fixed inset-0 bg-black/40 z-40 sm:hidden"
+                          onClick={() => setShowNotifications(false)}
+                        />
+                        {/* Panel */}
+                        <div className="
+                          fixed bottom-0 left-0 right-0 z-50
+                          sm:absolute sm:bottom-auto sm:left-auto sm:right-0 sm:top-full sm:mt-2
+                          w-full sm:w-80 md:w-96
+                          max-h-[75vh] sm:max-h-[28rem]
+                          bg-white text-slate-800 rounded-t-3xl sm:rounded-2xl
+                          shadow-2xl border border-slate-200
+                          flex flex-col
+                          animate-in fade-in slide-in-from-bottom-4 sm:slide-in-from-top-2 sm:zoom-in-95
+                        ">
+                          {/* Header */}
+                          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+                            <div className="font-bold text-sm text-slate-900">Notifications</div>
+                            <div className="flex items-center gap-3">
+                              {unreadCount > 0 && (
+                                <button
+                                  onClick={markAllNotificationsRead}
+                                  className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+                                >
+                                  Mark all read
+                                </button>
+                              )}
+                              <button
+                                onClick={() => setShowNotifications(false)}
+                                className="sm:hidden p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
                               >
-                                <div className="font-semibold text-slate-800">{n.title}</div>
-                                <div className="text-slate-600 text-[11px] mt-0.5 line-clamp-2">
-                                  {n.message}
-                                </div>
-                                <div className="text-[10px] text-slate-400 mt-1">
-                                  {new Date(n.createdAt).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })}
-                                </div>
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                          {/* List */}
+                          <div className="overflow-y-auto divide-y divide-slate-100 flex-1">
+                            {notifications.length === 0 ? (
+                              <div className="px-4 py-12 text-center text-xs text-slate-400">
+                                No notifications right now.
                               </div>
-                            ))
-                          )}
+                            ) : (
+                              notifications.map((n) => (
+                                <div
+                                  key={n.id}
+                                  onClick={() => markNotificationRead(n.id)}
+                                  className={`px-4 py-3.5 text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
+                                    !n.isRead ? 'bg-blue-50/50 border-l-4 border-blue-500' : ''
+                                  }`}
+                                >
+                                  <div className="font-semibold text-slate-800 text-sm">{n.title}</div>
+                                  <div className="text-slate-600 text-xs mt-0.5 line-clamp-2">
+                                    {n.message}
+                                  </div>
+                                  <div className="text-[10px] text-slate-400 mt-1">
+                                    {new Date(n.createdAt).toLocaleTimeString([], {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          {/* Mobile safe area spacer */}
+                          <div className="h-safe-area-inset-bottom sm:hidden flex-shrink-0 pb-4" />
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
 
