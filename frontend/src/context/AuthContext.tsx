@@ -93,8 +93,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!user) return;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    let wsUrl: string;
+    if (import.meta.env.VITE_WS_URL) {
+      wsUrl = import.meta.env.VITE_WS_URL;
+    } else if (import.meta.env.VITE_API_URL) {
+      try {
+        const parsed = new URL(import.meta.env.VITE_API_URL);
+        const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+        wsUrl = `${wsProtocol}//${parsed.host}/ws`;
+      } catch {
+        wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+      }
+    } else {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsUrl = `${protocol}//${window.location.host}/ws`;
+    }
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {

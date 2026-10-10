@@ -22,36 +22,45 @@ import {
   Layers,
   ArrowRight,
   RefreshCw,
+  PlayCircle,
+  AlertCircle,
+  Hourglass,
+  Truck,
 } from 'lucide-react';
 
 /* ─── Status config ─── */
 const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
-  ASSIGNED:          { label: 'Assigned',         color: 'bg-sky-100 text-sky-800 border-sky-200',         dot: 'bg-sky-500' },
-  INSPECTING:        { label: 'Inspecting',        color: 'bg-amber-100 text-amber-800 border-amber-200',    dot: 'bg-amber-500' },
-  ESTIMATE_REVIEW:   { label: 'Estimate Review',   color: 'bg-purple-100 text-purple-800 border-purple-200', dot: 'bg-purple-500' },
-  ESTIMATE_REJECTED: { label: 'Estimate Rejected', color: 'bg-rose-100 text-rose-800 border-rose-200',       dot: 'bg-rose-500 animate-pulse' },
-  ESTIMATE_APPROVED: { label: 'Approved ✓',        color: 'bg-emerald-100 text-emerald-800 border-emerald-200', dot: 'bg-emerald-500' },
-  PARTS_PENDING:     { label: 'Parts Pending',     color: 'bg-orange-100 text-orange-800 border-orange-200', dot: 'bg-orange-500' },
-  PARTS_READY:       { label: 'Parts Ready',       color: 'bg-teal-100 text-teal-800 border-teal-200',       dot: 'bg-teal-500' },
-  IN_REPAIR:         { label: 'In Repair',         color: 'bg-blue-100 text-blue-800 border-blue-200',        dot: 'bg-blue-500 animate-pulse' },
-  QC_PENDING:        { label: 'QC Queue',          color: 'bg-violet-100 text-violet-800 border-violet-200',  dot: 'bg-violet-500' },
-  READY_FOR_PICKUP:  { label: 'Ready for Pickup',  color: 'bg-green-100 text-green-800 border-green-200',    dot: 'bg-green-500' },
-  COMPLETED:         { label: 'Completed',         color: 'bg-slate-100 text-slate-600 border-slate-200',    dot: 'bg-slate-400' },
+  ASSIGNED:          { label: 'Assigned',          color: 'bg-sky-100 text-sky-800 border-sky-200',           dot: 'bg-sky-500' },
+  INSPECTING:        { label: 'Inspecting',         color: 'bg-amber-100 text-amber-800 border-amber-200',      dot: 'bg-amber-500' },
+  ESTIMATE_REVIEW:   { label: 'Estimate Review',    color: 'bg-purple-100 text-purple-800 border-purple-200',   dot: 'bg-purple-500' },
+  AWAITING_CUSTOMER: { label: 'Awaiting Customer',  color: 'bg-indigo-100 text-indigo-800 border-indigo-200',   dot: 'bg-indigo-500 animate-pulse' },
+  ESTIMATE_REJECTED: { label: 'Estimate Rejected',  color: 'bg-rose-100 text-rose-800 border-rose-200',         dot: 'bg-rose-500 animate-pulse' },
+  ESTIMATE_APPROVED: { label: 'Approved ✓',         color: 'bg-emerald-100 text-emerald-800 border-emerald-200',dot: 'bg-emerald-500' },
+  PARTS_PENDING:     { label: 'Parts Requested',    color: 'bg-orange-100 text-orange-800 border-orange-200',   dot: 'bg-orange-500 animate-pulse' },
+  PARTS_ORDERED:     { label: 'Parts Ordered',      color: 'bg-yellow-100 text-yellow-800 border-yellow-200',   dot: 'bg-yellow-500 animate-pulse' },
+  PARTS_READY:       { label: '✓ Parts Ready!',     color: 'bg-teal-100 text-teal-800 border-teal-200',         dot: 'bg-teal-500' },
+  IN_REPAIR:         { label: 'In Repair',          color: 'bg-blue-100 text-blue-800 border-blue-200',          dot: 'bg-blue-500 animate-pulse' },
+  QC_PENDING:        { label: 'QC Queue',           color: 'bg-violet-100 text-violet-800 border-violet-200',   dot: 'bg-violet-500' },
+  READY_FOR_PICKUP:  { label: 'Ready for Pickup',   color: 'bg-green-100 text-green-800 border-green-200',      dot: 'bg-green-500' },
+  COMPLETED:         { label: 'Completed',          color: 'bg-slate-100 text-slate-600 border-slate-200',      dot: 'bg-slate-400' },
 };
 const getStatusCfg = (status: string, hasQcIssue = false) =>
   hasQcIssue
     ? { label: 'QC Failed – Fix Needed', color: 'bg-rose-100 text-rose-800 border-rose-200', dot: 'bg-rose-500 animate-ping' }
     : statusConfig[status] ?? { label: status.replace(/_/g, ' '), color: 'bg-slate-100 text-slate-700 border-slate-200', dot: 'bg-slate-400' };
 
-/* ─── Workflow pipeline ─── */
+/* ─── Full workflow pipeline ─── */
 const PIPELINE = [
-  { key: 'ASSIGNED',         label: 'Assigned' },
-  { key: 'INSPECTING',       label: 'Inspecting' },
-  { key: 'ESTIMATE_REVIEW',  label: 'Estimate' },
-  { key: 'PARTS_READY',      label: 'Parts Ready' },
-  { key: 'IN_REPAIR',        label: 'In Repair' },
-  { key: 'QC_PENDING',       label: 'QC' },
-  { key: 'READY_FOR_PICKUP', label: 'Pickup' },
+  { key: 'ASSIGNED',          label: 'Assigned' },
+  { key: 'INSPECTING',        label: 'Inspecting' },
+  { key: 'ESTIMATE_REVIEW',   label: 'SA Review' },
+  { key: 'AWAITING_CUSTOMER', label: 'Cust. Auth' },
+  { key: 'ESTIMATE_APPROVED', label: 'Approved' },
+  { key: 'PARTS_PENDING',     label: 'Parts Req.' },
+  { key: 'PARTS_READY',       label: 'Parts Ready' },
+  { key: 'IN_REPAIR',         label: 'In Repair' },
+  { key: 'QC_PENDING',        label: 'QC' },
+  { key: 'READY_FOR_PICKUP',  label: 'Pickup' },
 ];
 const pipelineIdx = (s: string) => PIPELINE.findIndex((p) => p.key === s);
 
@@ -66,15 +75,15 @@ export const TechnicianView: React.FC = () => {
   // Estimate modal
   const [estimateBooking, setEstimateBooking] = useState<Booking | null>(null);
   const [laborCost, setLaborCost]             = useState('4000');
-  const [lineItems, setLineItems]             = useState<Array<{ partName: string; quantity: number; unitCost: number }>>([
-    { partName: 'Oil Filter',   quantity: 1, unitCost: 900 },
-    { partName: 'Engine Oil 4L', quantity: 1, unitCost: 5200 },
-  ]);
+  const [lineItems, setLineItems] = useState<Array<{ partInventoryId?: string; partName: string; quantity: number; unitCost: number }>>([]);
   const [partSearch, setPartSearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // QC rework confirm modal
   const [qcReworkBooking, setQcReworkBooking] = useState<Booking | null>(null);
+
+  // Parts-wait info expand
+  const [expandedPartsId, setExpandedPartsId] = useState<string | null>(null);
 
   /* ── Data load ── */
   const loadJobs = async () => {
@@ -93,7 +102,7 @@ export const TechnicianView: React.FC = () => {
   useEffect(() => { loadJobs(); }, [currentShop]);
 
   /* ── Filters ── */
-  const activeStatuses  = ['ASSIGNED','INSPECTING','ESTIMATE_REVIEW','ESTIMATE_REJECTED','ESTIMATE_APPROVED','PARTS_PENDING','PARTS_READY','IN_REPAIR','QC_PENDING'];
+  const activeStatuses  = ['ASSIGNED','INSPECTING','ESTIMATE_REVIEW','AWAITING_CUSTOMER','ESTIMATE_REJECTED','ESTIMATE_APPROVED','PARTS_PENDING','PARTS_ORDERED','PARTS_READY','IN_REPAIR','QC_PENDING'];
   const historyStatuses = ['READY_FOR_PICKUP','COMPLETED','CANCELLED'];
   const applySearch = (jobs: Booking[]) => {
     const q = searchQuery.toLowerCase();
@@ -109,20 +118,39 @@ export const TechnicianView: React.FC = () => {
   const historyJobs = applySearch(allJobs.filter((b) => historyStatuses.includes(b.status)));
 
   /* ── Stats ── */
-  const inRepairCnt   = allJobs.filter((b) => b.status === 'IN_REPAIR').length;
-  const inspectingCnt = allJobs.filter((b) => b.status === 'INSPECTING').length;
-  const qcFailCnt     = allJobs.filter((b) => b.qcIssues?.some((q) => q.status === 'OPEN')).length;
-  const completedCnt  = allJobs.filter((b) => b.status === 'COMPLETED').length;
+  const inRepairCnt    = allJobs.filter((b) => b.status === 'IN_REPAIR').length;
+  const inspectingCnt  = allJobs.filter((b) => b.status === 'INSPECTING').length;
+  const partsWaitCnt   = allJobs.filter((b) => ['PARTS_PENDING','PARTS_ORDERED'].includes(b.status)).length;
+  const partsReadyCnt  = allJobs.filter((b) => b.status === 'PARTS_READY').length;
+  const qcFailCnt      = allJobs.filter((b) => b.qcIssues?.some((q) => q.status === 'OPEN')).length;
+  const completedCnt   = allJobs.filter((b) => b.status === 'COMPLETED').length;
 
   /* ── Transitions ── */
   const transition = async (id: string, actionKey: string, note: string) => {
     try {
       await api.post(`/bookings/${id}/transition`, { actionKey, note });
       loadJobs();
-    } catch (err: any) { alert(err.message); }
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err.message || 'Action failed.';
+      alert(`Error: ${msg}`);
+    }
   };
+
   const handleStartInspection = (b: Booking) =>
-    transition(b.id, 'START_INSPECTION', 'Technician commenced physical inspection & diagnostics');
+    transition(b.id, 'START_INSPECTION', 'Technician commenced physical inspection & diagnostics.');
+
+  const handleStartRepair = async (b: Booking) => {
+    if (!confirm(`Start repair for ${b.vehicle.make} ${b.vehicle.model} (${b.vehicle.registrationPlate})?\n\nThis will deduct required parts from inventory and move the job to IN_REPAIR.`)) return;
+    try {
+      // Use the allocate-parts endpoint which deducts stock & transitions to IN_REPAIR
+      await api.post(`/inventory/bookings/${b.id}/allocate-parts`);
+      loadJobs();
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err.message || 'Failed to start repair.';
+      alert(`Error: ${msg}`);
+    }
+  };
+
   const handleSendToQC = async (b: Booking) =>
     transition(b.id, 'SEND_TO_QC', 'Mechanical repair work finished. Dispatched to QC for testing.');
 
@@ -131,18 +159,40 @@ export const TechnicianView: React.FC = () => {
     setEstimateBooking(b);
     setLaborCost('4000');
     setPartSearch('');
-    setLineItems([
-      { partName: 'Oil Filter',    quantity: 1, unitCost: 900 },
-      { partName: 'Engine Oil 4L', quantity: 1, unitCost: 5200 },
-    ]);
+
+    const filterItem = inventoryItems.find((i) => i.name.toLowerCase().includes('filter') && i.quantityOnHand > 0)
+      || inventoryItems.find((i) => i.name.toLowerCase().includes('filter'));
+    const oilItem = inventoryItems.find((i) => i.name.toLowerCase().includes('oil') && i.quantityOnHand > 0)
+      || inventoryItems.find((i) => i.name.toLowerCase().includes('oil'));
+
+    const initialItems: Array<{ partInventoryId?: string; partName: string; quantity: number; unitCost: number }> = [];
+    if (filterItem) {
+      initialItems.push({ partInventoryId: filterItem.id, partName: filterItem.name, quantity: 1, unitCost: filterItem.sellPrice || filterItem.costPrice || 900 });
+    } else {
+      initialItems.push({ partName: 'OEM Oil Filter (Honda)', quantity: 1, unitCost: 900 });
+    }
+    if (oilItem) {
+      initialItems.push({ partInventoryId: oilItem.id, partName: oilItem.name, quantity: 1, unitCost: oilItem.sellPrice || oilItem.costPrice || 5200 });
+    } else {
+      initialItems.push({ partName: 'Engine Oil 5W-30 Synthetic 4L', quantity: 1, unitCost: 5200 });
+    }
+    setLineItems(initialItems);
   };
-  const addLineItem    = () => setLineItems([...lineItems, { partName: '', quantity: 1, unitCost: 0 }]);
+
+  const addLineItem    = () => setLineItems([...lineItems, { partInventoryId: undefined, partName: '', quantity: 1, unitCost: 0 }]);
   const removeLineItem = (i: number) => setLineItems(lineItems.filter((_, x) => x !== i));
   const updateLineItem = (i: number, field: string, value: any) => {
-    const c = [...lineItems]; c[i] = { ...c[i], [field]: value }; setLineItems(c);
+    const c = [...lineItems];
+    c[i] = { ...c[i], [field]: value };
+    if (field === 'partName') {
+      const matched = inventoryItems.find((inv) => inv.name.toLowerCase() === (value || '').toLowerCase().trim());
+      c[i].partInventoryId = matched?.id;
+      if (matched && !c[i].unitCost) c[i].unitCost = matched.sellPrice || matched.costPrice;
+    }
+    setLineItems(c);
   };
   const addInventoryPart = (inv: any) => {
-    setLineItems([...lineItems, { partName: inv.name, quantity: 1, unitCost: inv.sellPrice || inv.costPrice }]);
+    setLineItems([...lineItems, { partInventoryId: inv.id, partName: inv.name, quantity: 1, unitCost: inv.sellPrice || inv.costPrice }]);
     setPartSearch('');
   };
   const partsTotal = lineItems.reduce((s, i) => s + i.quantity * i.unitCost, 0);
@@ -163,7 +213,10 @@ export const TechnicianView: React.FC = () => {
       });
       setEstimateBooking(null);
       loadJobs();
-    } catch (err: any) { alert(err.message); }
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err.message || 'Failed to submit estimate.';
+      alert(`Error: ${msg}`);
+    }
     finally { setSubmitting(false); }
   };
 
@@ -187,12 +240,14 @@ export const TechnicianView: React.FC = () => {
     <div className="space-y-6">
 
       {/* ── STATS BANNER ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         {[
-          { label: 'In Repair',      value: inRepairCnt,   clr: 'text-blue-600',    bg: 'from-blue-50',    icon: <Wrench className="w-5 h-5 text-blue-400" />,       sub: 'Active workshop bay' },
-          { label: 'Inspecting',     value: inspectingCnt, clr: 'text-amber-600',   bg: 'from-amber-50',   icon: <Zap className="w-5 h-5 text-amber-400" />,         sub: 'Diagnostics in progress' },
-          { label: 'QC Failures',    value: qcFailCnt,     clr: 'text-rose-600',    bg: 'from-rose-50',    icon: <ShieldAlert className="w-5 h-5 text-rose-400" />,  sub: 'Requires rework' },
-          { label: 'Completed',      value: completedCnt,  clr: 'text-emerald-600', bg: 'from-emerald-50', icon: <CheckCircle className="w-5 h-5 text-emerald-400" />, sub: 'Delivered to customers' },
+          { label: 'In Repair',     value: inRepairCnt,   clr: 'text-blue-600',    bg: 'from-blue-50',    icon: <Wrench className="w-5 h-5 text-blue-400" />,       sub: 'Active bay' },
+          { label: 'Inspecting',    value: inspectingCnt, clr: 'text-amber-600',   bg: 'from-amber-50',   icon: <Zap className="w-5 h-5 text-amber-400" />,          sub: 'Diagnostics' },
+          { label: 'Waiting Parts', value: partsWaitCnt,  clr: 'text-orange-600',  bg: 'from-orange-50',  icon: <Hourglass className="w-5 h-5 text-orange-400" />,   sub: 'Parts ordered' },
+          { label: 'Parts Ready!',  value: partsReadyCnt, clr: 'text-teal-600',    bg: 'from-teal-50',    icon: <Truck className="w-5 h-5 text-teal-400" />,         sub: 'Ready to start' },
+          { label: 'QC Failures',   value: qcFailCnt,     clr: 'text-rose-600',    bg: 'from-rose-50',    icon: <ShieldAlert className="w-5 h-5 text-rose-400" />,   sub: 'Rework needed' },
+          { label: 'Completed',     value: completedCnt,  clr: 'text-emerald-600', bg: 'from-emerald-50', icon: <CheckCircle className="w-5 h-5 text-emerald-400" />, sub: 'Delivered' },
         ].map(({ label, value, clr, bg, icon, sub }) => (
           <div key={label} className={`p-4 rounded-2xl bg-gradient-to-br ${bg} to-white border border-slate-200 shadow-sm flex items-start gap-3`}>
             <div className="mt-0.5">{icon}</div>
@@ -204,6 +259,22 @@ export const TechnicianView: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Parts Ready Alert Banner */}
+      {partsReadyCnt > 0 && (
+        <div className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-lg shadow-teal-600/20">
+          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <Truck className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="font-black text-sm">Parts Ready — Action Required!</div>
+            <div className="text-xs text-teal-100 mt-0.5">
+              {partsReadyCnt} job{partsReadyCnt > 1 ? 's have' : ' has'} all parts in stock. Click <strong>"Start Repair"</strong> below to begin workshop work.
+            </div>
+          </div>
+          <PlayCircle className="w-6 h-6 text-white/70 shrink-0" />
+        </div>
+      )}
 
       {/* ── TABS + SEARCH ── */}
       <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -263,21 +334,43 @@ export const TechnicianView: React.FC = () => {
             const est        = [...(b.estimates || [])].sort((a, x) => (x.revision || 0) - (a.revision || 0)).find((e) => e.status === 'APPROVED')
                             || [...(b.estimates || [])].sort((a, x) => (x.revision || 0) - (a.revision || 0))[0];
             const estTotal   = est ? Number(est.partsCost) + Number(est.laborCost) : 0;
+            const partsWaiting = ['PARTS_PENDING', 'PARTS_ORDERED'].includes(b.status);
+            const partsReady   = b.status === 'PARTS_READY';
 
             return (
               <div
                 key={b.id}
                 className={`rounded-3xl bg-white border shadow-sm overflow-hidden group transition-all ${
-                  hasQcIssue  ? 'border-rose-300 shadow-rose-100'
+                  hasQcIssue     ? 'border-rose-300 shadow-rose-100'
+                  : partsReady   ? 'border-teal-400 shadow-teal-100'
+                  : partsWaiting ? 'border-orange-300 shadow-orange-50'
                   : b.status === 'IN_REPAIR' ? 'border-blue-300 shadow-blue-50'
                   : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                {/* Alert banners */}
+                {/* Status alert banners */}
                 {hasQcIssue && openIssue && (
                   <div className="bg-rose-600 text-white px-6 py-2.5 flex items-center gap-2 text-xs font-bold">
                     <AlertTriangle className="w-4 h-4 shrink-0 animate-bounce" />
                     QC FAILED: {openIssue.title} — Rework required before re-submission
+                  </div>
+                )}
+                {partsReady && (
+                  <div className="bg-teal-600 text-white px-6 py-2.5 flex items-center gap-2 text-xs font-bold">
+                    <Truck className="w-4 h-4 shrink-0" />
+                    ✓ ALL PARTS IN STOCK — Ready to begin repair work! Click "Start Repair" below.
+                  </div>
+                )}
+                {b.status === 'PARTS_PENDING' && (
+                  <div className="bg-orange-500 text-white px-6 py-2 flex items-center gap-2 text-xs font-semibold">
+                    <Hourglass className="w-3.5 h-3.5 shrink-0" />
+                    Parts requested — Parts Person is checking inventory &amp; procurement
+                  </div>
+                )}
+                {b.status === 'PARTS_ORDERED' && (
+                  <div className="bg-yellow-500 text-white px-6 py-2 flex items-center gap-2 text-xs font-semibold">
+                    <Truck className="w-3.5 h-3.5 shrink-0" />
+                    Parts ordered from supplier — Awaiting delivery
                   </div>
                 )}
                 {b.status === 'IN_REPAIR' && !hasQcIssue && (
@@ -385,6 +478,50 @@ export const TechnicianView: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Parts waiting breakdown — expandable */}
+                  {(partsWaiting || partsReady) && est && (est.lineItems || []).length > 0 && (
+                    <div className={`rounded-2xl border overflow-hidden ${partsReady ? 'border-teal-200 bg-teal-50' : 'border-orange-200 bg-orange-50'}`}>
+                      <button
+                        onClick={() => setExpandedPartsId(expandedPartsId === b.id ? null : b.id)}
+                        className={`w-full flex items-center justify-between px-4 py-3 text-xs font-bold ${partsReady ? 'text-teal-800' : 'text-orange-800'}`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Package className="w-4 h-4" />
+                          {partsReady ? '✓ All Parts Ready — View parts list' : `Parts Required (${est.lineItems.length} items) — View status`}
+                        </span>
+                        <ChevronRight className={`w-4 h-4 transition-transform ${expandedPartsId === b.id ? 'rotate-90' : ''}`} />
+                      </button>
+                      {expandedPartsId === b.id && (
+                        <div className="px-4 pb-4 space-y-2">
+                          {est.lineItems.map((li: any, idx: number) => {
+                            const invItem = inventoryItems.find((i) => i.id === li.partInventoryId);
+                            const onHand = invItem?.quantityOnHand ?? 0;
+                            const shortage = Math.max(0, li.quantity - onHand);
+                            return (
+                              <div key={idx} className="flex items-center justify-between bg-white rounded-xl px-3 py-2 border border-white/80 shadow-sm text-xs">
+                                <div>
+                                  <span className="font-semibold text-slate-800">{li.partName}</span>
+                                  <span className="text-slate-400 ml-2">× {li.quantity}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {shortage === 0 ? (
+                                    <span className="flex items-center gap-1 text-emerald-700 font-bold">
+                                      <Check className="w-3.5 h-3.5" /> {onHand} in stock
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-1 text-rose-600 font-bold">
+                                      <AlertCircle className="w-3.5 h-3.5" /> Short {shortage} (have {onHand})
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* QC issue details */}
                   {hasQcIssue && openIssue && (
                     <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs space-y-1.5">
@@ -399,8 +536,10 @@ export const TechnicianView: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Action buttons */}
+                  {/* ══ ACTION BUTTONS ══ */}
                   <div className="pt-1 flex flex-wrap items-center justify-end gap-2.5">
+
+                    {/* ASSIGNED → Start Inspection */}
                     {b.status === 'ASSIGNED' && (
                       <button
                         onClick={() => handleStartInspection(b)}
@@ -409,6 +548,8 @@ export const TechnicianView: React.FC = () => {
                         <Zap className="w-4 h-4" />Start Diagnostic Inspection
                       </button>
                     )}
+
+                    {/* INSPECTING / ESTIMATE_REJECTED → Create/Revise Estimate */}
                     {(b.status === 'INSPECTING' || b.status === 'ESTIMATE_REJECTED') && (
                       <button
                         onClick={() => openEstimateModal(b)}
@@ -422,14 +563,59 @@ export const TechnicianView: React.FC = () => {
                         {b.status === 'ESTIMATE_REJECTED' ? 'Revise & Resubmit Estimate' : 'Create & Submit Estimate'}
                       </button>
                     )}
+
+                    {/* ESTIMATE_REVIEW / AWAITING_CUSTOMER → waiting info */}
+                    {(b.status === 'ESTIMATE_REVIEW' || b.status === 'AWAITING_CUSTOMER') && (
+                      <div className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                        b.status === 'AWAITING_CUSTOMER'
+                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                          : 'bg-purple-50 text-purple-700 border border-purple-200'
+                      }`}>
+                        <Hourglass className="w-4 h-4" />
+                        {b.status === 'AWAITING_CUSTOMER' ? 'Waiting for customer to authorize the estimate…' : 'Estimate submitted — Service Advisor reviewing…'}
+                      </div>
+                    )}
+
+                    {/* PARTS_PENDING / PARTS_ORDERED → waiting for parts info */}
+                    {partsWaiting && (
+                      <div className="px-4 py-2.5 rounded-xl bg-orange-50 text-orange-800 border border-orange-200 text-xs font-semibold flex items-center gap-2">
+                        <Hourglass className="w-4 h-4" />
+                        {b.status === 'PARTS_ORDERED' ? 'Parts ordered from supplier — waiting for delivery…' : 'Parts Person checking inventory & procurement…'}
+                      </div>
+                    )}
+
+                    {/* PARTS_READY → START REPAIR (deducts inventory, moves to IN_REPAIR) */}
+                    {partsReady && !hasQcIssue && (
+                      <button
+                        onClick={() => handleStartRepair(b)}
+                        className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold shadow-md shadow-teal-600/20 transition-all flex items-center gap-1.5 animate-pulse"
+                        style={{ animationDuration: '2s' }}
+                      >
+                        <PlayCircle className="w-4 h-4" />Start Repair — Parts Ready!
+                      </button>
+                    )}
+
+                    {/* ESTIMATE_APPROVED (no parts needed path) → START REPAIR directly */}
+                    {b.status === 'ESTIMATE_APPROVED' && !hasQcIssue && (
+                      <button
+                        onClick={() => handleStartRepair(b)}
+                        className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5"
+                      >
+                        <PlayCircle className="w-4 h-4" />Start Repair Now
+                      </button>
+                    )}
+
+                    {/* IN_REPAIR → Repair Complete → Send to QC */}
                     {b.status === 'IN_REPAIR' && !hasQcIssue && (
                       <button
                         onClick={() => handleSendToQC(b)}
-                        className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5"
+                        className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5"
                       >
                         <Check className="w-4 h-4" />Repair Complete → Send to QC
                       </button>
                     )}
+
+                    {/* QC Rework → Send Back to QC */}
                     {hasQcIssue && (
                       <button
                         onClick={() => setQcReworkBooking(b)}
@@ -527,7 +713,7 @@ export const TechnicianView: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    <Layers className="w-3.5 h-3.5 inline mr-1 text-slate-400" />Parts & Materials
+                    <Layers className="w-3.5 h-3.5 inline mr-1 text-slate-400" />Parts &amp; Materials
                   </label>
                   <button type="button" onClick={addLineItem}
                     className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition-colors">
@@ -594,7 +780,7 @@ export const TechnicianView: React.FC = () => {
                 </div>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between text-slate-300">
-                    <span>Parts & Materials ({lineItems.length} items):</span>
+                    <span>Parts &amp; Materials ({lineItems.length} items):</span>
                     <span className="font-mono font-semibold">PKR {partsTotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-slate-300">

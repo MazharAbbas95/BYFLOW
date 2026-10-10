@@ -161,15 +161,30 @@ export const ServiceAdvisorView: React.FC = () => {
     const est = selectedBookingForAction.estimates?.[0];
     if (!est) return;
     try {
-      await api.post(`/estimates/${est.id}/revise`, {
+      // Step 1: Save/revise the estimate with updated labor if the SA changed it
+      await api.post(`/estimates/${selectedBookingForAction.id}`, {
         laborCost: adjustedLabor ? parseFloat(adjustedLabor) : est.laborCost,
-        note: 'Estimate revised and submitted to vehicle owner for authorization.',
+        lineItems: (est.lineItems || []).map((li: any) => ({
+          partName: li.partName,
+          partInventoryId: li.partInventoryId || null,
+          quantity: li.quantity,
+          unitCost: li.unitCost,
+        })),
+        notes: 'Estimate revised by Service Advisor and submitted to customer for authorization.',
       });
+
+      // Step 2: Transition booking from ESTIMATE_REVIEW -> AWAITING_CUSTOMER
+      await api.post(`/bookings/${selectedBookingForAction.id}/transition`, {
+        actionKey: 'SEND_TO_CUSTOMER',
+        note: 'Estimate reviewed, adjusted, and submitted to vehicle owner for digital authorization.',
+      });
+
       setSelectedBookingForAction(null);
       setAdjustedLabor('');
       loadData();
     } catch (err: any) {
-      alert(err.message);
+      const msg = err?.response?.data?.error || err.message || 'Failed to send estimate to customer.';
+      alert(`Error: ${msg}`);
     }
   };
 

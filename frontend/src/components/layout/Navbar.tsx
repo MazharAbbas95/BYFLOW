@@ -100,34 +100,37 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
             </nav>
 
             {/* Right Action Buttons */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               {user ? (
                 <>
                   {user.role === 'CUSTOMER' ? (
                     <Link
                       to="/portal"
-                      className="px-3.5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-md shadow-blue-600/30"
+                      className="px-3 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all shadow-md shadow-blue-600/30 whitespace-nowrap"
                     >
-                      Customer Portal
+                      <span className="hidden sm:inline">Customer Portal</span>
+                      <span className="sm:hidden">Portal</span>
                     </Link>
                   ) : (
                     <Link
                       to="/pos"
-                      className="px-3.5 py-2 text-xs font-black uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-md shadow-blue-600/30 transition-all flex items-center space-x-1"
+                      className="px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-md shadow-blue-600/30 transition-all flex items-center space-x-1 whitespace-nowrap"
                     >
-                      <span>
+                      {/* Short label on mobile, full label on sm+ */}
+                      <span className="hidden sm:inline">
                         {user.role === 'OWNER'
                           ? 'Owner Console'
                           : currentRole === 'TECHNICIAN'
-                          ? 'Technician Terminal'
+                          ? 'Technician'
                           : currentRole === 'SERVICE_ADVISOR'
-                          ? 'Advisor Counter'
+                          ? 'Advisor'
                           : currentRole === 'QC_INSPECTOR'
-                          ? 'QC Terminal'
+                          ? 'QC'
                           : currentRole === 'PARTS_PERSON'
-                          ? 'Parts Counter'
-                          : 'Staff Terminal'}
+                          ? 'Parts'
+                          : 'Terminal'}
                       </span>
+                      <span className="sm:hidden">POS</span>
                       <ArrowRight className="w-3 h-3" />
                     </Link>
                   )}
@@ -149,7 +152,7 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
 
                     {/* Notification Dropdown */}
                     {showNotifications && (
-                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
+                      <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-sm bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
                         <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                           <div className="font-bold text-sm text-slate-900">Notifications</div>
                           {unreadCount > 0 && (

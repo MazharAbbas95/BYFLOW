@@ -107,7 +107,7 @@ export const DemoSwitcherBar: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 max-w-full">
           {demoAccounts.map((acc) => {
             const Icon = acc.icon;
             const isActive = user?.email === acc.email;
@@ -117,7 +117,7 @@ export const DemoSwitcherBar: React.FC = () => {
                 key={acc.email}
                 disabled={isLoading}
                 onClick={() => switchDemoUser(acc.email)}
-                className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full border transition-all font-medium ${
+                className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full border transition-all font-medium shrink-0 ${
                   isActive
                     ? acc.activeBg
                     : `bg-slate-800 text-slate-300 border-slate-700 ${acc.bg}`
@@ -125,21 +125,21 @@ export const DemoSwitcherBar: React.FC = () => {
                 title={`Switch session to ${acc.name} (${acc.role})`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                <span>{acc.name}</span>
-                <span className="opacity-75 text-[10px]">({acc.role})</span>
+                <span className="whitespace-nowrap">{acc.name}</span>
+                <span className="opacity-75 text-[10px] hidden md:inline">({acc.role})</span>
               </button>
             );
           })}
         </div>
 
         {user && (
-          <div className="text-[11px] text-slate-400 flex items-center space-x-1.5">
-            <span>Signed in:</span>
-            <span className="text-white font-semibold underline decoration-slate-600">
+          <div className="text-[11px] text-slate-400 flex items-center space-x-1.5 shrink-0">
+            <span className="hidden sm:inline">Signed in:</span>
+            <span className="text-white font-semibold max-w-[80px] sm:max-w-none truncate">
               {user.name}
             </span>
-            <span className="px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 uppercase text-[10px] font-mono font-bold">
-              {isOwner ? 'Shop Owner' : currentRole || user.role}
+            <span className="px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 uppercase text-[10px] font-mono font-bold whitespace-nowrap">
+              {isOwner ? 'Owner' : (currentRole || user.role)?.replace(/_/g, ' ')}
             </span>
           </div>
         )}

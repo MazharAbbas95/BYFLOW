@@ -16,20 +16,33 @@ import {
   Building2,
   Lock,
   Sparkles,
-  SlidersHorizontal,
+  ChevronDown,
 } from 'lucide-react';
+
+const ROLE_VIEWS = [
+  { key: null,              label: 'Owner Console',   icon: Shield,       color: 'amber' },
+  { key: 'SERVICE_ADVISOR', label: 'Service Advisor', icon: UserCheck,    color: 'blue'  },
+  { key: 'TECHNICIAN',      label: 'Technician',      icon: Wrench,       color: 'blue'  },
+  { key: 'PARTS_PERSON',    label: 'Parts Counter',   icon: Package,      color: 'blue'  },
+  { key: 'QC_INSPECTOR',    label: 'QC Portal',       icon: CheckCircle2, color: 'blue'  },
+];
 
 export const ShopPOS: React.FC = () => {
   const { user, currentShop, currentRole } = useAuth();
   const [supportRoleOverride, setSupportRoleOverride] = useState<string | null>(null);
+  const [mobileRoleOpen, setMobileRoleOpen] = useState(false);
 
   const isOwner = user?.role === 'OWNER';
 
-  // Only shop owner can override and switch between support roles
   const activeRole = isOwner && supportRoleOverride
     ? supportRoleOverride
     : (currentRole || user?.memberships?.[0]?.role || 'TECHNICIAN');
 
+  const activeRoleLabel = ROLE_VIEWS.find(
+    (r) => r.key === (isOwner ? supportRoleOverride : null) || r.key === activeRole
+  )?.label ?? activeRole.replace(/_/g, ' ');
+
+  /* ── Not logged in ── */
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
@@ -52,11 +65,12 @@ export const ShopPOS: React.FC = () => {
     );
   }
 
+  /* ── Customer trying to access POS ── */
   if (user.role === 'CUSTOMER') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="p-8 bg-white rounded-3xl border border-slate-200 text-center max-w-md shadow-xl space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 mx-auto flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
             <Wrench className="w-6 h-6" />
           </div>
           <h3 className="font-bold text-slate-900 text-base">Customer Account Detected</h3>
@@ -65,7 +79,7 @@ export const ShopPOS: React.FC = () => {
           </p>
           <a
             href="/portal"
-            className="inline-block mt-2 px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md"
+            className="inline-block mt-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md"
           >
             Go to Customer Tracking Portal
           </a>
@@ -74,145 +88,147 @@ export const ShopPOS: React.FC = () => {
     );
   }
 
+  /* ── Main POS ── */
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* POS Header Banner */}
-        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5 border border-slate-800">
-          <div className="relative z-10 space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">
-                <Building2 className="w-3.5 h-3.5 text-brand-400" />
-                <span>{currentShop?.name || 'Workshop'} • {currentShop?.city}</span>
-              </span>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
 
-              {/* Strict Role in Company Badge */}
-              <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                isOwner
-                  ? 'bg-amber-400 text-slate-950 font-black'
-                  : 'bg-brand-600 text-white shadow-sm'
-              }`}>
-                {isOwner ? <Shield className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-                <span>Role in Company: {isOwner ? 'Shop Owner' : (currentRole || '').replace(/_/g, ' ')}</span>
-              </span>
-            </div>
+        {/* ═══ POS HEADER BANNER ═══ */}
+        <div className="bg-slate-900 text-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-800 overflow-hidden">
 
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white pt-1">
-              {activeRole === 'OWNER' && 'Shop Owner Management Console'}
-              {activeRole === 'SERVICE_ADVISOR' && 'Service Advisor (Front Desk) Terminal'}
-              {activeRole === 'TECHNICIAN' && 'Technician Workshop Terminal'}
-              {activeRole === 'QC_INSPECTOR' && 'Quality Control & Inspection Portal'}
-              {activeRole === 'PARTS_PERSON' && 'Parts & Inventory Counter'}
+          {/* Top strip — shop + role badge */}
+          <div className="px-4 sm:px-6 pt-4 sm:pt-6 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">
+              <Building2 className="w-3 h-3 text-blue-400 shrink-0" />
+              <span className="truncate max-w-[140px] sm:max-w-none">
+                {currentShop?.name || 'Workshop'} • {currentShop?.city}
+              </span>
+            </span>
+
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
+              isOwner ? 'bg-amber-400 text-slate-950' : 'bg-blue-600 text-white'
+            }`}>
+              {isOwner ? <Shield className="w-3 h-3 shrink-0" /> : <Lock className="w-3 h-3 shrink-0" />}
+              <span className="truncate">
+                {isOwner ? 'Shop Owner' : (currentRole || '').replace(/_/g, ' ')}
+              </span>
+            </span>
+          </div>
+
+          {/* Title row */}
+          <div className="px-4 sm:px-6 pt-2 pb-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-tight">
+              {activeRole === 'OWNER'          && 'Shop Owner Management Console'}
+              {activeRole === 'SERVICE_ADVISOR' && 'Service Advisor Terminal'}
+              {activeRole === 'TECHNICIAN'      && 'Technician Workshop Terminal'}
+              {activeRole === 'QC_INSPECTOR'    && 'Quality Control Portal'}
+              {activeRole === 'PARTS_PERSON'    && 'Parts & Inventory Counter'}
             </h1>
-
-            <p className="text-xs text-slate-400">
-              Staff Member: <strong className="text-white">{user.name}</strong> •{' '}
-              {isOwner ? (
-                <span className="text-amber-300 font-semibold">
-                  Full Multi-Screen Access (Owner Authority)
-                </span>
-              ) : (
-                <span className="text-emerald-400 font-semibold flex-inline items-center">
-                  Dedicated Terminal • Scoped strictly to your {activeRole.replace(/_/g, ' ')} role
-                </span>
-              )}
+            <p className="text-xs text-slate-400 mt-1 truncate">
+              Staff: <strong className="text-white">{user.name}</strong>
+              {isOwner
+                ? <span className="text-amber-300 ml-1">(Owner Authority)</span>
+                : <span className="text-emerald-400 ml-1">· Scoped to {activeRole.replace(/_/g, ' ')}</span>
+              }
             </p>
           </div>
 
-          {/* SHOP OWNER EXCLUSIVE: MULTI-SCREEN SWITCHER */}
-          {isOwner ? (
-            <div className="relative z-10 flex flex-col items-start md:items-end bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
-              <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 mb-1.5 flex items-center space-x-1">
-                <Eye className="w-3.5 h-3.5 text-amber-400" />
-                <span>Owner Multi-Screen Switcher:</span>
-              </span>
-              <div className="flex flex-wrap gap-1 bg-slate-900 p-1 rounded-xl border border-slate-700/80 text-xs font-bold">
+          {/* ── OWNER: Role Switcher ── */}
+          {isOwner && (
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-3">
+              {/* Mobile: dropdown */}
+              <div className="sm:hidden">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Eye className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">
+                    Owner Multi-Screen Switcher
+                  </span>
+                </div>
                 <button
-                  onClick={() => setSupportRoleOverride(null)}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    !supportRoleOverride
-                      ? 'bg-amber-400 text-slate-950 font-black shadow-md'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
+                  onClick={() => setMobileRoleOpen(!mobileRoleOpen)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold text-white"
                 >
-                  Owner Console
+                  <span>{supportRoleOverride
+                    ? ROLE_VIEWS.find(r => r.key === supportRoleOverride)?.label
+                    : 'Owner Console'
+                  }</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${mobileRoleOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <button
-                  onClick={() => setSupportRoleOverride('SERVICE_ADVISOR')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    supportRoleOverride === 'SERVICE_ADVISOR'
-                      ? 'bg-brand-600 text-white font-bold shadow-md'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Service Advisor
-                </button>
-                <button
-                  onClick={() => setSupportRoleOverride('TECHNICIAN')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    supportRoleOverride === 'TECHNICIAN'
-                      ? 'bg-brand-600 text-white font-bold shadow-md'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Technician
-                </button>
-                <button
-                  onClick={() => setSupportRoleOverride('PARTS_PERSON')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    supportRoleOverride === 'PARTS_PERSON'
-                      ? 'bg-brand-600 text-white font-bold shadow-md'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Parts Counter
-                </button>
-                <button
-                  onClick={() => setSupportRoleOverride('QC_INSPECTOR')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    supportRoleOverride === 'QC_INSPECTOR'
-                      ? 'bg-brand-600 text-white font-bold shadow-md'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  QC Portal
-                </button>
+                {mobileRoleOpen && (
+                  <div className="mt-1 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+                    {ROLE_VIEWS.map((rv) => (
+                      <button
+                        key={String(rv.key)}
+                        onClick={() => { setSupportRoleOverride(rv.key); setMobileRoleOpen(false); }}
+                        className={`w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b border-slate-700/50 last:border-0 transition-colors ${
+                          supportRoleOverride === rv.key
+                            ? 'bg-amber-400 text-slate-950'
+                            : 'text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        <rv.icon className="w-4 h-4 shrink-0" />
+                        {rv.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop: pill buttons */}
+              <div className="hidden sm:flex flex-col gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">
+                    Owner Multi-Screen Switcher:
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1 bg-slate-950/60 p-1.5 rounded-2xl border border-slate-800 w-fit">
+                  {ROLE_VIEWS.map((rv) => (
+                    <button
+                      key={String(rv.key)}
+                      onClick={() => setSupportRoleOverride(rv.key)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        supportRoleOverride === rv.key
+                          ? 'bg-amber-400 text-slate-950 shadow-md'
+                          : rv.key === null && !supportRoleOverride
+                          ? 'bg-amber-400 text-slate-950 shadow-md'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      <rv.icon className="w-3.5 h-3.5" />
+                      {rv.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          ) : (
-            /* NON-OWNER: STRICT ROLE LOCKED BADGE (NO SWITCHER) */
-            <div className="relative z-10 flex items-center space-x-2 bg-slate-800/80 px-4 py-2 rounded-2xl border border-slate-700/60 text-xs self-start md:self-auto">
-              <Lock className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <div>
-                <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">
-                  Company Permission Level
-                </span>
-                <span className="text-white font-black">
-                  Staff Role: {(currentRole || '').replace(/_/g, ' ')}
-                </span>
+          )}
+
+          {/* ── NON-OWNER: Permission badge ── */}
+          {!isOwner && (
+            <div className="px-4 sm:px-6 pb-4 sm:pb-5">
+              <div className="inline-flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700/60 text-xs">
+                <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">
+                    Permission Level
+                  </span>
+                  <span className="text-white font-black">
+                    {(currentRole || '').replace(/_/g, ' ')}
+                  </span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Dynamic Role-Based View */}
+        {/* ═══ DYNAMIC ROLE VIEW ═══ */}
         <div>
-          {/* 1. SHOP OWNER ONLY */}
-          {activeRole === 'OWNER' && (
-            <OwnerView onSelectSupportRole={(role) => setSupportRoleOverride(role)} />
-          )}
-
-          {/* 2. SERVICE ADVISOR ONLY (or Owner viewing as SA) */}
+          {activeRole === 'OWNER'          && <OwnerView onSelectSupportRole={(role) => setSupportRoleOverride(role)} />}
           {activeRole === 'SERVICE_ADVISOR' && <ServiceAdvisorView />}
-
-          {/* 3. TECHNICIAN ONLY (or Owner viewing as Tech) */}
-          {activeRole === 'TECHNICIAN' && <TechnicianView />}
-
-          {/* 4. QC INSPECTOR ONLY (or Owner viewing as QC) */}
-          {activeRole === 'QC_INSPECTOR' && <QCInspectorView />}
-
-          {/* 5. PARTS PERSON ONLY (or Owner viewing as Parts) */}
-          {activeRole === 'PARTS_PERSON' && <PartsPersonView />}
+          {activeRole === 'TECHNICIAN'      && <TechnicianView />}
+          {activeRole === 'QC_INSPECTOR'    && <QCInspectorView />}
+          {activeRole === 'PARTS_PERSON'    && <PartsPersonView />}
         </div>
       </div>
     </div>

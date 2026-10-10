@@ -74,6 +74,8 @@ router.put('/:shopId/inventory/:itemId', requireAuth, requireTenant, requireShop
   }
 });
 
+import { matchInventoryItem, recheckAndAdvanceWorkOrdersAwaitingParts } from '../services/inventoryMatcher';
+
 // Jobs awaiting parts with stock comparison
 router.get('/:shopId/jobs-awaiting-parts', requireAuth, requireTenant, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -87,6 +89,7 @@ router.get('/:shopId/jobs-awaiting-parts', requireAuth, requireTenant, async (re
       include: {
         vehicle: true,
         customer: true,
+        technician: true,
         estimates: {
           orderBy: { revision: 'desc' },
           take: 1,
@@ -99,42 +102,79 @@ router.get('/:shopId/jobs-awaiting-parts', requireAuth, requireTenant, async (re
     // Fetch all inventory items for this shop to compute availability
     const inventory = await prisma.inventoryItem.findMany({ where: { shopId } });
     const invMap = new Map(inventory.map((i) => [i.id, i]));
-    const invNameMap = new Map(inventory.map((i) => [i.name.toLowerCase(), i]));
 
-    const jobsWithStockComparison = bookings.map((b) => {
-      const latestEst = b.estimates[0];
-      const items = latestEst?.lineItems || [];
+    const jobsWithStockComparison = await Promise.all(
+      bookings.map(async (b) => {
+        const latestEst = b.estimates[0];
+        const items = latestEst?.lineItems || [];
 
-      let allInStock = items.length > 0;
-      const partsBreakdown = items.map((line) => {
-        let invItem = line.partInventoryId ? invMap.get(line.partInventoryId) : null;
-        if (!invItem) {
-          invItem = invNameMap.get(line.partName.toLowerCase()) || null;
-        }
+        let allInStock = items.length > 0;
+        const partsBreakdown = await Promise.all(
+          items.map(async (line) => {
+            let invItem = line.partInventoryId ? invMap.get(line.partInventoryId) : null;
+            if (!invItem) {
+              invItem = matchInventoryItem(line.partName, line.partInventoryId, inventory);
+              if (invItem) {
+                // Permanently heal the line item reference in the DB
+                await prisma.estimateLineItem.update({
+                  where: { id: line.id },
+                  data: { partInventoryId: invItem.id, partName: invItem.name },
+                }).catch(() => {});
+              }
+            }
 
-        const onHand = invItem ? invItem.quantityOnHand : 0;
-        const shortage = Math.max(0, line.quantity - onHand);
-        if (shortage > 0) {
-          allInStock = false;
+            const onHand = invItem ? invItem.quantityOnHand : 0;
+            const shortage = Math.max(0, line.quantity - onHand);
+            if (shortage > 0) {
+              allInStock = false;
+            }
+
+            return {
+              id: line.id,
+              partName: invItem?.name || line.partName,
+              quantityNeeded: line.quantity,
+              quantityOnHand: onHand,
+              shortage,
+              inventoryItemId: invItem?.id || null,
+              unitCost: line.unitCost || (invItem?.sellPrice || invItem?.costPrice || 0),
+            };
+          })
+        );
+
+        // If all items are in stock and booking is in PARTS_PENDING or PARTS_ORDERED,
+        // auto-advance to PARTS_READY so technicians and parts person are not blocked
+        let currentStatus = b.status;
+        if (allInStock && (b.status === 'PARTS_PENDING' || b.status === 'PARTS_ORDERED')) {
+          try {
+            await prisma.booking.update({
+              where: { id: b.id },
+              data: { status: 'PARTS_READY' },
+            });
+            await prisma.bookingHistory.create({
+              data: {
+                bookingId: b.id,
+                userId: req.user?.id || null,
+                userName: 'BayFlow Inventory Engine',
+                userRole: 'PARTS_PERSON',
+                fromStatus: b.status,
+                toStatus: 'PARTS_READY',
+                note: 'Verified 100% available on shelf. Work order updated to PARTS_READY.',
+              },
+            });
+            currentStatus = 'PARTS_READY';
+          } catch (err: any) {
+            console.error('Failed to update booking status to PARTS_READY:', err.message);
+          }
         }
 
         return {
-          id: line.id,
-          partName: line.partName,
-          quantityNeeded: line.quantity,
-          quantityOnHand: onHand,
-          shortage,
-          inventoryItemId: invItem?.id || null,
-          unitCost: line.unitCost,
+          ...b,
+          status: currentStatus,
+          partsBreakdown,
+          allInStock,
         };
-      });
-
-      return {
-        ...b,
-        partsBreakdown,
-        allInStock,
-      };
-    });
+      })
+    );
 
     res.json({ jobs: jobsWithStockComparison });
   } catch (error: any) {
@@ -282,20 +322,21 @@ router.post('/:shopId/purchase-orders/:poId/receive', requireAuth, requireTenant
       data: { status: newStatus },
     });
 
-    // If fully received and linked to booking, check if booking can advance to PARTS_READY
-    if (allReceived && po.bookingId && po.booking?.status === 'PARTS_ORDERED') {
-      const membership = user.memberships.find((m) => m.shopId === po.shopId);
-      await executeTransition('PARTS_ARRIVED', {
-        bookingId: po.bookingId,
-        targetStatus: 'PARTS_READY',
-        userId: user.id,
-        userName: user.name,
-        userRole: membership?.role || 'PARTS_PERSON',
-        note: `All parts received from ${po.poNumber}. Parts are now ready.`,
-      });
-    }
+    // Check and auto-advance ALL work orders awaiting parts in this shop whose shortages are now fulfilled!
+    const membership = user.memberships.find((m) => m.shopId === po.shopId);
+    const advanceResult = await recheckAndAdvanceWorkOrdersAwaitingParts(
+      po.shopId,
+      `Inbound PO delivery received (${po.poNumber}). All required parts are now in stock! Work order updated to PARTS_READY.`,
+      { id: user.id, name: user.name, role: membership?.role || 'PARTS_PERSON' }
+    );
 
-    res.json({ success: true, purchaseOrder: updatedPo, status: newStatus });
+    res.json({
+      success: true,
+      purchaseOrder: updatedPo,
+      status: newStatus,
+      resolvedJobsCount: advanceResult.updatedCount,
+      resolvedJobs: advanceResult.updatedBookings,
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -329,50 +370,58 @@ router.post('/bookings/:bookingId/allocate-parts', requireAuth, async (req: Auth
       return;
     }
 
-    const latestEst = booking.estimates[0];
-    if (!latestEst) {
-      res.status(400).json({ error: 'No estimate exists for this booking.' });
+    const effectiveRole = membership?.role || 'TECHNICIAN';
+
+    // Validate booking is in a state where repair can start
+    const allocatableStatuses = ['PARTS_READY', 'PARTS_PENDING', 'PARTS_ORDERED', 'ESTIMATE_APPROVED'];
+    if (!allocatableStatuses.includes(booking.status)) {
+      res.status(400).json({ error: `Cannot start repair from status: ${booking.status}. Job must be PARTS_READY or ESTIMATE_APPROVED.` });
       return;
     }
 
-    // Allocate each line item
-    for (const item of latestEst.lineItems) {
-      // Find inventory item
-      let invItem = item.partInventoryId
-        ? await prisma.inventoryItem.findUnique({ where: { id: item.partInventoryId } })
-        : await prisma.inventoryItem.findFirst({
-            where: { shopId: booking.shopId, name: { equals: item.partName } },
-          });
+    const latestEst = booking.estimates[0];
+    const lineItems = latestEst?.lineItems || [];
 
-      if (!invItem) {
-        // Auto create inventory item if not exists
-        invItem = await prisma.inventoryItem.create({
+    // Only deduct stock if there are parts line items
+    if (lineItems.length > 0) {
+      for (const item of lineItems) {
+        // Find inventory item
+        let invItem = item.partInventoryId
+          ? await prisma.inventoryItem.findUnique({ where: { id: item.partInventoryId } })
+          : await prisma.inventoryItem.findFirst({
+              where: { shopId: booking.shopId, name: { equals: item.partName } },
+            });
+
+        if (!invItem) {
+          // Auto create inventory item if not exists
+          invItem = await prisma.inventoryItem.create({
+            data: {
+              shopId: booking.shopId,
+              sku: `PART-${Math.floor(100 + Math.random() * 900)}`,
+              name: item.partName,
+              quantityOnHand: item.quantity,
+              costPrice: item.unitCost,
+              sellPrice: item.unitCost,
+            },
+          });
+        }
+
+        // Deduct stock
+        await prisma.inventoryItem.update({
+          where: { id: invItem.id },
+          data: { quantityOnHand: { decrement: item.quantity } },
+        });
+
+        // Record allocation
+        await prisma.partAllocation.create({
           data: {
-            shopId: booking.shopId,
-            sku: `PART-${Math.floor(100 + Math.random() * 900)}`,
-            name: item.partName,
-            quantityOnHand: item.quantity,
-            costPrice: item.unitCost,
-            sellPrice: item.unitCost,
+            bookingId: booking.id,
+            inventoryItemId: invItem.id,
+            quantity: item.quantity,
+            status: 'ALLOCATED',
           },
         });
       }
-
-      // Deduct stock
-      await prisma.inventoryItem.update({
-        where: { id: invItem.id },
-        data: { quantityOnHand: { decrement: item.quantity } },
-      });
-
-      // Record allocation
-      await prisma.partAllocation.create({
-        data: {
-          bookingId: booking.id,
-          inventoryItemId: invItem.id,
-          quantity: item.quantity,
-          status: 'ALLOCATED',
-        },
-      });
     }
 
     // Transition state to IN_REPAIR
@@ -381,8 +430,10 @@ router.post('/bookings/:bookingId/allocate-parts', requireAuth, async (req: Auth
       targetStatus: 'IN_REPAIR',
       userId: user.id,
       userName: user.name,
-      userRole: membership?.role || 'PARTS_PERSON',
-      note: 'Parts allocated and stock deducted. Sent to Technician for repair.',
+      userRole: effectiveRole,
+      note: lineItems.length > 0
+        ? `Parts allocated (${lineItems.length} items), stock deducted. Repair started by ${user.name}.`
+        : `Labour-only job — no parts to deduct. Repair started by ${user.name}.`,
     });
 
     res.json({ success: true, booking: updated });

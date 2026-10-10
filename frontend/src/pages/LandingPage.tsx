@@ -365,13 +365,13 @@ export const LandingPage: React.FC = () => {
 
         <div className="max-w-6xl mx-auto relative z-10 text-center">
           {/* Badge */}
-          <div className="badge-pulse inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
-            <Sparkles className="w-4 h-4 text-cyan-300 sparkle-spin" />
-            <span>Next-Gen Multi-Tenant Automotive SaaS Platform</span>
+          <div className="badge-pulse inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-6 shadow-sm max-w-xs sm:max-w-none mx-auto">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-300 sparkle-spin shrink-0" />
+            <span className="leading-tight">Next-Gen Multi-Tenant Automotive SaaS Platform</span>
           </div>
 
           {/* Headline */}
-          <h1 className="reveal text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] max-w-4xl mx-auto">
+          <h1 className="reveal text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] max-w-4xl mx-auto px-2">
             Your Trusted Partner For All Your{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-200 gradient-text-animate">
               Auto Needs.
@@ -379,16 +379,16 @@ export const LandingPage: React.FC = () => {
           </h1>
 
           {/* Subtitle */}
-          <p className="reveal delay-200 mt-6 text-base sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="reveal delay-200 mt-4 sm:mt-6 text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed px-2">
             From routine maintenance to major mechanical overhauls, our multi-tenant platform connects car owners
             to certified independent workshops with transparent digital estimates, genuine parts, and verified Quality Control.
           </p>
 
           {/* CTAs */}
-          <div className="reveal delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="reveal delay-300 mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
             <Link
               to="/book"
-              className="cta-pulse px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-extrabold text-sm sm:text-base text-white shadow-xl shadow-blue-600/40 hover:shadow-blue-500/60 transition-all hover:-translate-y-1 flex items-center space-x-2.5"
+              className="cta-pulse w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-extrabold text-sm text-white shadow-xl shadow-blue-600/40 hover:shadow-blue-500/60 transition-all hover:-translate-y-1 flex items-center justify-center space-x-2.5"
             >
               <span>Book A Service Now</span>
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -396,7 +396,7 @@ export const LandingPage: React.FC = () => {
 
             <a
               href="#shops-section"
-              className="px-7 py-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/90 font-bold text-sm sm:text-base text-slate-200 border border-slate-600/70 backdrop-blur-md transition-all hover:-translate-y-0.5 flex items-center space-x-2"
+              className="w-full sm:w-auto px-5 sm:px-7 py-3.5 sm:py-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/90 font-bold text-sm text-slate-200 border border-slate-600/70 backdrop-blur-md transition-all hover:-translate-y-0.5 flex items-center justify-center space-x-2"
             >
               <span>Explore Verified Garages</span>
               <ChevronRight className="w-4 h-4 text-blue-400" />
@@ -412,7 +412,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Core Trust Pillars */}
-          <div className="reveal delay-400 mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
+          <div className="reveal delay-400 mt-10 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto text-left px-2">
             <div className="hover-lift p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
               <ShieldCheck className="w-6 h-6 text-cyan-400 mb-2.5" />
               <div className="text-sm font-bold text-white">100% Tenant Isolation</div>
@@ -541,8 +541,8 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           3. ABOUT US / COMPREHENSIVE CARE SECTION (From Reference)
          ======================================================== */}
-      <section id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Text Column */}
           <div className="reveal-left lg:col-span-6 space-y-6">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider">
@@ -610,8 +610,8 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Visual Image Collage */}
-          <div className="reveal-right lg:col-span-6 relative">
+          {/* Right Visual Image Collage — hidden on mobile, shown on md+ */}
+          <div className="reveal-right lg:col-span-6 relative hidden sm:block">
             <div className="grid grid-cols-2 gap-4">
               {/* Card 1 */}
               <div className="space-y-4">
@@ -667,8 +667,8 @@ export const LandingPage: React.FC = () => {
          ======================================================== */}
       <section className="bg-[#0B1E48] text-white py-16 px-4 sm:px-6 lg:px-8 border-y border-blue-900/40 relative overflow-hidden">
         <div className="absolute -right-20 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-10">
-          <div className="max-w-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-10">
+          <div className="max-w-2xl text-center lg:text-left">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-widest mb-4">
               <span>CERTIFIED WORKFORCE</span>
             </div>
@@ -681,7 +681,7 @@ export const LandingPage: React.FC = () => {
             </p>
 
             {/* 2-Column Checklist from Reference Image */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8 text-left">
               <div className="flex items-center space-x-3 text-sm text-slate-200 font-semibold">
                 <CheckCircle2 className="w-5 h-5 text-blue-400 flex-shrink-0" />
                 <span>General Vehicle Maintenance</span>
@@ -736,8 +736,8 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           5. STATS COUNTER STRIP (88K+, 96%, 123K+, 24+ From Reference)
          ======================================================== */}
-      <section className="bg-white border-b border-slate-200 py-10 px-4 sm:px-6 lg:px-8 shadow-sm">
-        <div ref={statsRef} className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+      <section className="bg-white border-b border-slate-200 py-8 sm:py-10 px-4 sm:px-6 lg:px-8 shadow-sm">
+        <div ref={statsRef} className="max-w-7xl mx-auto grid grid-cols-2 gap-4 sm:gap-6 text-center">
           {/* Stat 1 */}
           <div className="hover-lift p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
             <div className={`text-4xl sm:text-5xl font-black text-blue-600 tracking-tight ${statsVisible ? 'num-pop' : 'opacity-0'}`}>
@@ -779,8 +779,8 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           6. "OUR SERVICES" SECTION (From Reference & User Request)
          ======================================================== */}
-      <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="reveal text-center max-w-3xl mx-auto mb-16">
+      <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 w-full">
+        <div className="reveal text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider mb-3">
             <span>OUR SERVICES</span>
           </div>
@@ -797,7 +797,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* 6 Services Grid (Styled after Autorizen 3x2 cards with blue badges) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           {platformServices.map((service, idx) => {
             const Icon = service.icon;
             const delays = ['', 'delay-100', 'delay-200', 'delay-300', 'delay-400', 'delay-500'];
@@ -870,9 +870,9 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           7. "HOW IT WORKS" SECTION (User Request)
          ======================================================== */}
-      <section id="how-it-works" className="bg-slate-100/70 border-y border-slate-200 py-20 px-4 sm:px-6 lg:px-8 w-full">
+      <section id="how-it-works" className="bg-slate-100/70 border-y border-slate-200 py-12 sm:py-20 px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider mb-3">
               <span>HOW IT WORKS</span>
             </div>
@@ -887,7 +887,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* 4 Steps Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {workflowSteps.map((stepItem, idx) => {
               const StepIcon = stepItem.icon;
               return (
@@ -926,7 +926,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* State Machine Interactive Transparency Callout */}
-          <div className="mt-12 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="mt-8 sm:mt-12 bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-md flex flex-col items-start gap-5 sm:gap-6">
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-xs font-bold text-emerald-700 uppercase tracking-wider">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -954,8 +954,8 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           8. "OUR PARTNERS" SECTION (User Request with Mock Partners)
          ======================================================== */}
-      <section id="partners" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+      <section id="partners" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 w-full">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider mb-3">
             <span>OUR PARTNERS</span>
           </div>
@@ -971,7 +971,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* Mock Partners Grid (8 Certified Partners) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
           {mockPartners.map((partner) => (
             <div
               key={partner.name}
@@ -1013,7 +1013,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* Partner Trust Guarantee Banner */}
-        <div className="mt-12 rounded-3xl bg-gradient-to-r from-[#0B1E48] via-[#0D2562] to-[#0A1A3D] text-white p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-8 sm:mt-12 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#0B1E48] via-[#0D2562] to-[#0A1A3D] text-white p-5 sm:p-8 shadow-xl flex flex-col gap-5 sm:gap-6">
           <div className="space-y-1">
             <div className="text-xs font-black uppercase tracking-widest text-cyan-300">
               Zero Counterfeit Guarantee
@@ -1026,10 +1026,10 @@ export const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center space-x-3 flex-shrink-0">
+          <div className="flex items-center">
             <Link
               to="/register-owner"
-              className="px-6 py-3 rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-black text-xs uppercase tracking-wider transition-colors shadow-md"
+              className="w-full sm:w-auto text-center px-6 py-3 rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-black text-xs uppercase tracking-wider transition-colors shadow-md"
             >
               Become A Partner Shop
             </Link>
@@ -1040,7 +1040,7 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           9. CUSTOMER TRUST & TESTIMONIALS (Proof & Identity)
          ======================================================== */}
-      <section className="bg-white border-y border-slate-200 py-20 px-4 sm:px-6 lg:px-8 w-full">
+      <section className="bg-white border-y border-slate-200 py-12 sm:py-20 px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider mb-3">
@@ -1056,7 +1056,7 @@ export const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
             {testimonials.map((t, i) => (
               <div
                 key={t.name}
@@ -1094,8 +1094,8 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================
           10. VERIFIED GARAGES DIRECTORY SECTION
          ======================================================== */}
-      <section id="shops-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex-1 w-full">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+      <section id="shops-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 flex-1 w-full">
+        <div className="flex flex-col gap-4 mb-8 sm:mb-10">
           <div>
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider mb-2">
               <span>WORKSHOP DIRECTORY</span>
@@ -1109,13 +1109,13 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* City Filter Pills & Search */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex bg-slate-200/90 p-1.5 rounded-xl border border-slate-300/60">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3">
+            <div className="flex bg-slate-200/90 p-1.5 rounded-xl border border-slate-300/60 overflow-x-auto max-w-full">
               {cities.map((city) => (
                 <button
                   key={city}
                   onClick={() => setSelectedCity(city)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                     selectedCity === city
                       ? 'bg-white text-blue-700 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
@@ -1126,21 +1126,21 @@ export const LandingPage: React.FC = () => {
               ))}
             </div>
 
-            <div className="relative">
+            <div className="relative w-full sm:w-52">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
                 type="text"
                 placeholder="Search workshops..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 w-52 font-medium"
+                className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium"
               />
             </div>
           </div>
         </div>
 
         {/* Shops Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {filteredShops.map((shop) => (
             <div
               key={shop.id}
@@ -1219,7 +1219,7 @@ export const LandingPage: React.FC = () => {
       <footer className="bg-[#07132D] text-slate-300 text-xs pt-16 pb-12 border-t border-blue-950 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top Newsletter Strip */}
-          <div className="pb-12 border-b border-blue-900/50 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="pb-8 sm:pb-12 border-b border-blue-900/50 flex flex-col gap-5 sm:gap-6">
             <div className="text-center lg:text-left">
               <h4 className="text-xl sm:text-2xl font-black text-white">
                 Stay Ahead On Vehicle Maintenance & Special Shop Offers
@@ -1248,7 +1248,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* 4 Footer Columns */}
-          <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
             {/* Col 1: Brand & Mission */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
@@ -1335,18 +1335,18 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Bottom Legal Sub-Footer */}
-          <div className="pt-8 border-t border-blue-900/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px]">
+          <div className="pt-6 sm:pt-8 border-t border-blue-900/40 flex flex-col items-center sm:flex-row sm:justify-between gap-3 text-slate-500 text-[11px] text-center">
             <div>
               © 2026 BayFlow Multi-Tenant Automotive Platform. All rights reserved. Enterprise Production Edition.
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <a href="#privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <a href="#terms" className="hover:text-slate-300 transition-colors">Terms of Service</a>
-              <span>•</span>
-              <a href="#security" className="hover:text-slate-300 transition-colors">Tenant Isolation SLA</a>
-              <span>•</span>
-              <a href="#cookies" className="hover:text-slate-300 transition-colors">Cookie Settings</a>
+              <span className="hidden sm:inline">•</span>
+              <a href="#security" className="hover:text-slate-300 transition-colors">Isolation SLA</a>
+              <span className="hidden sm:inline">•</span>
+              <a href="#cookies" className="hover:text-slate-300 transition-colors">Cookies</a>
             </div>
           </div>
         </div>

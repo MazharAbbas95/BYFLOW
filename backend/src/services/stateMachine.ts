@@ -275,7 +275,7 @@ export const TRANSITION_RULES: Record<string, TransitionRule> = {
   },
 
   PARTS_ARRIVED: {
-    from: ['PARTS_ORDERED', 'PARTS_PENDING'],
+    from: ['PARTS_ORDERED', 'PARTS_PENDING', 'ESTIMATE_APPROVED'],
     to: 'PARTS_READY',
     allowedRoles: ['PARTS_PERSON', 'OWNER'],
     async onTransition(booking) {
@@ -292,7 +292,7 @@ export const TRANSITION_RULES: Record<string, TransitionRule> = {
   },
 
   ALLOCATE_AND_START_REPAIR: {
-    from: ['PARTS_READY'],
+    from: ['PARTS_READY', 'PARTS_PENDING', 'PARTS_ORDERED', 'ESTIMATE_APPROVED'],
     to: 'IN_REPAIR',
     allowedRoles: ['PARTS_PERSON', 'TECHNICIAN', 'SERVICE_ADVISOR', 'OWNER'],
     async onTransition(booking) {

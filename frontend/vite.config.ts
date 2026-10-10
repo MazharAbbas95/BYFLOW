@@ -10,10 +10,28 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:4000',
         changeOrigin: true,
+        // Suppress ECONNRESET noise when backend restarts
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            if ((err as any).code === 'ECONNRESET' || (err as any).code === 'ECONNREFUSED') {
+              // Silently ignore – backend is restarting
+              return;
+            }
+            console.error('[proxy error]', err.message);
+          });
+        },
       },
       '/ws': {
         target: 'ws://localhost:4000',
         ws: true,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            if ((err as any).code === 'ECONNRESET' || (err as any).code === 'ECONNREFUSED') {
+              return;
+            }
+            console.error('[ws proxy error]', err.message);
+          });
+        },
       }
     }
   }

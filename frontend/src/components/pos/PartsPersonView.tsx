@@ -251,10 +251,18 @@ export const PartsPersonView: React.FC = () => {
         { receivedItems }
       );
 
-      showToast(
-        `Received delivery for ${selectedPoToReceive.poNumber}. Stock updated (${res.data.status})!`,
-        'success'
-      );
+      const resolvedCount = res.data.resolvedJobsCount || 0;
+      if (resolvedCount > 0) {
+        showToast(
+          `✓ Received delivery for ${selectedPoToReceive.poNumber}! ${resolvedCount} work order(s) awaiting parts are now resolved and ready for repair!`,
+          'success'
+        );
+      } else {
+        showToast(
+          `Received delivery for ${selectedPoToReceive.poNumber}. Stock updated (${res.data.status})!`,
+          'success'
+        );
+      }
       setSelectedPoToReceive(null);
       loadData(false);
     } catch (err: any) {
