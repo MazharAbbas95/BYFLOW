@@ -21,6 +21,7 @@ interface AuthContextType {
   markAllNotificationsRead: () => Promise<void>;
   clearIncomingCall: () => void;
   refreshUserData: () => Promise<void>;
+  loadShops: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -242,6 +243,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         markAllNotificationsRead,
         clearIncomingCall,
         refreshUserData,
+        loadShops,
       }}
     >
       {children}

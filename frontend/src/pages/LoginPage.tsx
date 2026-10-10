@@ -125,7 +125,7 @@ export const LoginPage: React.FC = () => {
         {/* Right: Demo Accounts 1-Click Fast Switcher for Judges */}
         <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl shadow-xl p-8 text-white border border-slate-800">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider mb-3">
-            <span>Hackathon Judge Quick-Access</span>
+            <span className="text-blue-400 font-bold">Enterprise Role Switcher</span>
           </div>
 
           <h3 className="text-xl font-extrabold text-white">1-Click Demo Accounts</h3>

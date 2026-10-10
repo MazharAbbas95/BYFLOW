@@ -60,11 +60,11 @@ export const DemoSwitcherBar: React.FC = () => {
     <div className="bg-slate-900 border-b border-slate-800 text-white py-2 px-4 shadow-inner">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
-            Judge Mode
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500 text-white uppercase tracking-wider">
+            Role Switcher
           </span>
           <span className="text-slate-300 font-medium hidden sm:inline">
-            1-Click Role Switcher:
+            Sandbox Accounts:
           </span>
         </div>
 

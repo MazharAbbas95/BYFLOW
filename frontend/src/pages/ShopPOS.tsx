@@ -30,7 +30,7 @@ export const ShopPOS: React.FC = () => {
           <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
           <h3 className="font-bold text-slate-900">Authentication Required</h3>
           <p className="text-xs text-slate-500 mt-1">
-            Please sign in with a shop staff account or use the 1-Click Judge Role Switcher bar at the top!
+            Please sign in with a shop staff account or use the Role Switcher bar at the top!
           </p>
         </div>
       </div>
