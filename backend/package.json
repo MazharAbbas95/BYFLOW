@@ -5,15 +5,20 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc",
+    "build": "prisma db push --accept-data-loss && prisma generate && tsx prisma/seed.ts && tsc",
     "postinstall": "prisma generate",
-    "start": "prisma db push && node dist/server.js",
+    "start": "prisma db push --accept-data-loss && node dist/server.js",
     "db:migrate": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "test": "tsx test/api.test.ts"
   },
-  "keywords": ["bayflow", "auto-repair", "multi-tenant", "pos"],
+  "keywords": [
+    "bayflow",
+    "auto-repair",
+    "multi-tenant",
+    "pos"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -23,7 +28,9 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -32,8 +39,6 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.14.9",
     "@types/ws": "^8.5.12",
-    "prisma": "^5.22.0",
-    "tsx": "^4.19.1",
     "typescript": "^5.6.2"
   }
 }
