@@ -5,4 +5,5 @@ build/
 *.log
 *.sqlite
 *.sqlite-journal
+*.db
 .DS_Store
