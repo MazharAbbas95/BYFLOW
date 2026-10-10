@@ -261,58 +261,60 @@ export const OwnerView: React.FC<{
 
         {/* Top Controls & Navigation Pills */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Navigation Tabs Pill Bar */}
-          <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80">
-            <button
-              onClick={() => setActiveTab('DASHBOARD')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'DASHBOARD'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab('MULTISHOP')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'MULTISHOP'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Multi-Shop Revenue
-            </button>
-            <button
-              onClick={() => setActiveTab('TEAM')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'TEAM'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Team ({teamMembers.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('SERVICES')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'SERVICES'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Services ({services.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('NEW_SHOP')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'NEW_SHOP'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-blue-700 hover:text-blue-900 hover:bg-blue-50'
-              }`}
-            >
-              + Add Branch
-            </button>
+          {/* Navigation Tabs Pill Bar — scrollable on mobile */}
+          <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80 overflow-x-auto max-w-full no-scrollbar">
+            <div className="flex gap-0.5 min-w-max">
+              <button
+                onClick={() => setActiveTab('DASHBOARD')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === 'DASHBOARD'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('MULTISHOP')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === 'MULTISHOP'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Multi-Shop Revenue
+              </button>
+              <button
+                onClick={() => setActiveTab('TEAM')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === 'TEAM'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Team ({teamMembers.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('SERVICES')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === 'SERVICES'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Services ({services.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('NEW_SHOP')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === 'NEW_SHOP'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-blue-700 hover:text-blue-900 hover:bg-blue-50'
+                }`}
+              >
+                + Add Branch
+              </button>
+            </div>
           </div>
 
           {/* Action Buttons: Export & Filter */}
@@ -693,9 +695,94 @@ export const OwnerView: React.FC<{
               </div>
             </div>
 
-            {/* Performance Table */}
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
-              <table className="w-full">
+            {/* Performance Table — cards on mobile, table on lg+ */}
+            <div className="rounded-2xl border border-slate-200 text-xs overflow-hidden">
+
+              {/* ── MOBILE / TABLET cards ── */}
+              <div className="lg:hidden divide-y divide-slate-100">
+                {multiShopOverview?.shops?.map((s: any, idx: number) => (
+                  <div key={s.id} className="p-4 space-y-3">
+                    {/* Header row: rank + name + Select button */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-700 to-cyan-500 text-white flex items-center justify-center font-black text-xs shadow-sm flex-shrink-0">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 text-sm">{s.name}</div>
+                          <div className="text-[11px] text-slate-500">{s.city}</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const found = shops.find((x) => x.id === s.id);
+                          if (found) setCurrentShop(found);
+                        }}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                          currentShop?.id === s.id
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        {currentShop?.id === s.id ? 'Current' : 'Select'}
+                      </button>
+                    </div>
+
+                    {/* Stats grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-slate-50 rounded-xl p-2.5">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Jobs</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-600 font-bold font-mono">{s.activeBookings || 0} active</span>
+                          <span className="text-slate-400">·</span>
+                          <span className="text-slate-700 font-mono">{s.completedBookings || 0} done</span>
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 rounded-xl p-2.5">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Revenue</div>
+                        <div className="font-bold font-mono text-emerald-600">PKR {s.revenue.toLocaleString()}</div>
+                      </div>
+                      <div className="bg-slate-50 rounded-xl p-2.5">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">QC Fail Rate</div>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                          {s.qcFailRate || '0%'}
+                        </span>
+                      </div>
+                      <div className="bg-slate-50 rounded-xl p-2.5">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Team</div>
+                        <div className="font-semibold text-slate-700">{s.teamCount || 0} members</div>
+                      </div>
+                    </div>
+                  </div>
+                )) || shops.map((s, idx) => (
+                  <div key={s.id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 text-sm">{s.name}</div>
+                          <div className="text-[11px] text-slate-500">{s.city} · {s.workingHours}</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setCurrentShop(s)}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                          currentShop?.id === s.id
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        {currentShop?.id === s.id ? 'Current' : 'Select'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── DESKTOP table ── */}
+              <table className="hidden lg:table w-full">
                 <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[11px]">
                   <tr>
                     <th className="py-3 px-4 text-left">Workshop</th>
@@ -778,9 +865,51 @@ export const OwnerView: React.FC<{
             </button>
           </div>
 
-          {/* Members Table */}
+          {/* Members — cards on mobile, table on lg+ */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-            <table className="w-full">
+
+            {/* ── MOBILE / TABLET cards ── */}
+            <div className="lg:hidden divide-y divide-slate-100">
+              {teamMembers.map((m) => (
+                <div key={m.id} className="p-4 flex items-start gap-3">
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 to-cyan-500 text-white flex items-center justify-center font-black text-sm flex-shrink-0">
+                    {m.user.name.charAt(0)}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-slate-900 text-sm truncate">{m.user.name}</span>
+                      <span
+                        className={`flex-shrink-0 px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                          m.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        {m.isActive ? 'Active' : 'Deactivated'}
+                      </span>
+                    </div>
+                    <div className="text-slate-500 font-mono text-[11px] truncate">{m.user.email}</div>
+                    <div className="flex items-center justify-between gap-2 pt-0.5">
+                      <span className="px-2 py-0.5 rounded-lg font-bold font-mono text-[10px] bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+                        {m.role}
+                      </span>
+                      {m.role !== 'OWNER' && (
+                        <button
+                          onClick={() => handleToggleMember(m.id, m.isActive)}
+                          className="text-xs font-semibold text-slate-500 hover:text-blue-600 underline"
+                        >
+                          {m.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── DESKTOP table ── */}
+            <table className="hidden lg:table w-full">
               <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[11px]">
                 <tr>
                   <th className="py-3 px-4 text-left">Staff Name</th>
