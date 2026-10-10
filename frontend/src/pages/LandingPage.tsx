@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -35,7 +35,46 @@ import {
   Layers,
   Fuel,
   TrendingUp,
+  Mail,
 } from 'lucide-react';
+
+// ─── Scroll-reveal hook ──────────────────────────────────────────────────────
+function useScrollReveal() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    const els = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+}
+
+// ─── Animated counter hook ────────────────────────────────────────────────────
+function useCountUp(target: number, duration = 1800, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      // ease-out expo
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [start, target, duration]);
+  return count;
+}
 
 export const LandingPage: React.FC = () => {
   const { shops, setCurrentShop } = useAuth();
@@ -47,8 +86,28 @@ export const LandingPage: React.FC = () => {
   const [historyError, setHistoryError] = useState('');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Activate scroll-reveal system
+  useScrollReveal();
+
+  // Fire counters when stats section enters viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setStatsVisible(true); },
+      { threshold: 0.3 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const stat1 = useCountUp(88, 1600, statsVisible);
+  const stat2 = useCountUp(96, 1800, statsVisible);
+  const stat3 = useCountUp(123, 2000, statsVisible);
+  const stat4 = useCountUp(24, 1400, statsVisible);
 
   const cities = ['All', 'Lahore', 'Karachi', 'Islamabad'];
 
@@ -289,45 +348,55 @@ export const LandingPage: React.FC = () => {
           1. HERO SECTION (Autorizen Style: Bold Navy Backdrop)
          ======================================================== */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#091838] via-[#0B1E48] to-[#0A1A3D] text-white pt-14 pb-28 px-4 sm:px-6 lg:px-8">
-        {/* Subtle geometric grid background */}
-        <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:28px_28px] opacity-20" />
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none" />
+        {/* Hero background image */}
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src="/hero_mechanic.jpg"
+            alt="BayFlow Certified Garage"
+            className="w-full h-full object-cover object-center opacity-20 scale-105 hover:scale-100 transition-transform duration-[8s]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#091838]/80 via-[#0B1E48]/70 to-[#0A1A3D]/90" />
+        </div>
+        {/* Animated floating orbs */}
+        <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:28px_28px] opacity-10" />
+        <div className="orb-float absolute -top-32 -right-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="orb-float-slow absolute -bottom-32 -left-32 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="orb-float absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" style={{animationDelay:'3s'}} />
 
         <div className="max-w-6xl mx-auto relative z-10 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
-            <Sparkles className="w-4 h-4 text-cyan-300" />
+          <div className="badge-pulse inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
+            <Sparkles className="w-4 h-4 text-cyan-300 sparkle-spin" />
             <span>Next-Gen Multi-Tenant Automotive SaaS Platform</span>
           </div>
 
-          {/* Headline matching Reference Image */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] max-w-4xl mx-auto">
+          {/* Headline */}
+          <h1 className="reveal text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] max-w-4xl mx-auto">
             Your Trusted Partner For All Your{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-200">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-200 gradient-text-animate">
               Auto Needs.
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-6 text-base sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="reveal delay-200 mt-6 text-base sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
             From routine maintenance to major mechanical overhauls, our multi-tenant platform connects car owners
             to certified independent workshops with transparent digital estimates, genuine parts, and verified Quality Control.
           </p>
 
           {/* CTAs */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="reveal delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/book"
-              className="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-extrabold text-sm sm:text-base text-white shadow-xl shadow-blue-600/40 hover:shadow-blue-500/60 transition-all hover:-translate-y-0.5 flex items-center space-x-2.5"
+              className="cta-pulse px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-extrabold text-sm sm:text-base text-white shadow-xl shadow-blue-600/40 hover:shadow-blue-500/60 transition-all hover:-translate-y-1 flex items-center space-x-2.5"
             >
               <span>Book A Service Now</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
 
             <a
               href="#shops-section"
-              className="px-7 py-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/90 font-bold text-sm sm:text-base text-slate-200 border border-slate-600/70 backdrop-blur-md transition-all flex items-center space-x-2"
+              className="px-7 py-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/90 font-bold text-sm sm:text-base text-slate-200 border border-slate-600/70 backdrop-blur-md transition-all hover:-translate-y-0.5 flex items-center space-x-2"
             >
               <span>Explore Verified Garages</span>
               <ChevronRight className="w-4 h-4 text-blue-400" />
@@ -343,23 +412,23 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Core Trust Pillars */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+          <div className="reveal delay-400 mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
+            <div className="hover-lift p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
               <ShieldCheck className="w-6 h-6 text-cyan-400 mb-2.5" />
               <div className="text-sm font-bold text-white">100% Tenant Isolation</div>
               <div className="text-xs text-slate-300 mt-1">Strict shop data boundary & private pricing</div>
             </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+            <div className="hover-lift p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
               <CheckCircle className="w-6 h-6 text-emerald-400 mb-2.5" />
               <div className="text-sm font-bold text-white">Audit State Machine</div>
               <div className="text-xs text-slate-300 mt-1">No work begins without your digital approval</div>
             </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+            <div className="hover-lift p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
               <Phone className="w-6 h-6 text-amber-400 mb-2.5" />
               <div className="text-sm font-bold text-white">In-App Voice Calling</div>
               <div className="text-xs text-slate-300 mt-1">Direct WebRTC audio link with service advisors</div>
             </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+            <div className="hover-lift p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
               <Sparkles className="w-6 h-6 text-purple-400 mb-2.5" />
               <div className="text-sm font-bold text-white">AI Voice Front Desk</div>
               <div className="text-xs text-slate-300 mt-1">24/7 automated booking & vehicle history query</div>
@@ -372,7 +441,7 @@ export const LandingPage: React.FC = () => {
           2. PUBLIC VEHICLE SERVICE HISTORY LOOKUP TOOL
          ======================================================== */}
       <section id="history-lookup" className="max-w-4xl mx-auto -mt-12 px-4 w-full relative z-20">
-        <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-5 sm:p-7">
+        <div className="reveal bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-5 sm:p-7">
           <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
             <div className="flex items-center space-x-2 text-xs font-black text-slate-600 uppercase tracking-wider">
               <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
@@ -475,7 +544,7 @@ export const LandingPage: React.FC = () => {
       <section id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Column */}
-          <div className="lg:col-span-6 space-y-6">
+          <div className="reveal-left lg:col-span-6 space-y-6">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider">
               <span>ABOUT US</span>
             </div>
@@ -541,19 +610,19 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Visual Image Collage (Matching Reference Auto Imagery) */}
-          <div className="lg:col-span-6 relative">
+          {/* Right Visual Image Collage */}
+          <div className="reveal-right lg:col-span-6 relative">
             <div className="grid grid-cols-2 gap-4">
               {/* Card 1 */}
               <div className="space-y-4">
-                <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 group">
+                <div className="img-zoom relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 group">
                   <img
-                    src="https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=700&q=80"
-                    alt="Master Auto Technician"
+                    src="/technician_diagnostic.jpg"
+                    alt="Advanced OBD-II Diagnostic Scanning"
                     className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end p-4">
-                    <span className="text-white text-xs font-bold">Certified Diagnostics Station</span>
+                    <span className="text-white text-xs font-bold">Advanced OBD-II Diagnostic Scanning</span>
                   </div>
                 </div>
 
@@ -566,7 +635,7 @@ export const LandingPage: React.FC = () => {
 
               {/* Card 2 */}
               <div className="space-y-4 pt-6">
-                <div className="p-5 rounded-2xl bg-[#0B1E48] text-white shadow-xl">
+                <div className="hover-lift p-5 rounded-2xl bg-[#0B1E48] text-white shadow-xl">
                   <div className="flex items-center space-x-2">
                     <Award className="w-5 h-5 text-amber-400" />
                     <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Quality Verified</span>
@@ -579,12 +648,12 @@ export const LandingPage: React.FC = () => {
 
                 <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 group">
                   <img
-                    src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=700&q=80"
-                    alt="Precision Engine Care"
+                    src="/customer_handover.jpg"
+                    alt="Professional Service & Key Handover"
                     className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end p-4">
-                    <span className="text-white text-xs font-bold">High Precision Engine Overhaul</span>
+                    <span className="text-white text-xs font-bold">Professional Service & Key Handover</span>
                   </div>
                 </div>
               </div>
@@ -648,14 +717,18 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <Link
-              to="/book"
-              className="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-black text-sm text-white shadow-xl shadow-blue-600/30 transition-all flex items-center space-x-2"
-            >
-              <span>Schedule Inspection</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+          {/* Services visual image */}
+          <div className="hidden lg:block flex-shrink-0">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-blue-700/40 w-[420px]">
+              <img
+                src="/services_grid.jpg"
+                alt="Our Premium Automotive Services"
+                className="w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1E48]/60 via-transparent to-transparent flex items-end p-5">
+                <span className="text-white text-sm font-bold">6 Premium Service Categories</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -664,31 +737,39 @@ export const LandingPage: React.FC = () => {
           5. STATS COUNTER STRIP (88K+, 96%, 123K+, 24+ From Reference)
          ======================================================== */}
       <section className="bg-white border-b border-slate-200 py-10 px-4 sm:px-6 lg:px-8 shadow-sm">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+        <div ref={statsRef} className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           {/* Stat 1 */}
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
-            <div className="text-4xl sm:text-5xl font-black text-blue-600 tracking-tight">88K+</div>
+          <div className="hover-lift p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className={`text-4xl sm:text-5xl font-black text-blue-600 tracking-tight ${statsVisible ? 'num-pop' : 'opacity-0'}`}>
+              {stat1}K+
+            </div>
             <div className="text-sm font-bold text-slate-900 mt-2">Happy Clients</div>
             <div className="text-xs text-slate-500 mt-0.5">Satisfied car owners across all cities</div>
           </div>
 
           {/* Stat 2 */}
-          <div className="p-6 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-            <div className="text-4xl sm:text-5xl font-black text-white tracking-tight">96%</div>
+          <div className="hover-lift p-6 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+            <div className={`text-4xl sm:text-5xl font-black text-white tracking-tight ${statsVisible ? 'num-pop' : 'opacity-0'}`} style={{animationDelay:'150ms'}}>
+              {stat2}%
+            </div>
             <div className="text-sm font-bold text-blue-100 mt-2">Completed On-Time</div>
             <div className="text-xs text-blue-200 mt-0.5">Strict adherence to promised repair slots</div>
           </div>
 
           {/* Stat 3 */}
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
-            <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">123K+</div>
+          <div className="hover-lift p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className={`text-4xl sm:text-5xl font-black text-slate-900 tracking-tight ${statsVisible ? 'num-pop' : 'opacity-0'}`} style={{animationDelay:'300ms'}}>
+              {stat3}K+
+            </div>
             <div className="text-sm font-bold text-slate-900 mt-2">Genuine Parts Sold</div>
             <div className="text-xs text-slate-500 mt-0.5">100% verified QR & serial code tracking</div>
           </div>
 
           {/* Stat 4 */}
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
-            <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">24+</div>
+          <div className="hover-lift p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className={`text-4xl sm:text-5xl font-black text-slate-900 tracking-tight ${statsVisible ? 'num-pop' : 'opacity-0'}`} style={{animationDelay:'450ms'}}>
+              {stat4}+
+            </div>
             <div className="text-sm font-bold text-slate-900 mt-2">Partner Workshops</div>
             <div className="text-xs text-slate-500 mt-0.5">Independent verified garages on platform</div>
           </div>
@@ -699,7 +780,7 @@ export const LandingPage: React.FC = () => {
           6. "OUR SERVICES" SECTION (From Reference & User Request)
          ======================================================== */}
       <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="reveal text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-wider mb-3">
             <span>OUR SERVICES</span>
           </div>
@@ -719,10 +800,11 @@ export const LandingPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {platformServices.map((service, idx) => {
             const Icon = service.icon;
+            const delays = ['', 'delay-100', 'delay-200', 'delay-300', 'delay-400', 'delay-500'];
             return (
               <div
                 key={service.title}
-                className="bg-white rounded-3xl p-7 border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                className={`service-card reveal-scale ${delays[idx] || ''} bg-white rounded-3xl p-7 border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
               >
                 {/* Watermark subtle icon */}
                 <div className="absolute -right-4 -bottom-4 text-slate-100 group-hover:text-blue-50/60 transition-colors pointer-events-none">
@@ -1220,8 +1302,8 @@ export const LandingPage: React.FC = () => {
                 <div className="flex items-start space-x-2.5">
                   <Phone className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <div className="text-white font-bold">+1 (555) 987-4643</div>
-                    <div className="text-[11px] text-slate-500">+92 (51) 800-FLOW (Toll Free)</div>
+                    <div className="text-white font-bold">+92 326 2066565</div>
+                    <div className="text-[11px] text-slate-500">Call or WhatsApp — We're here to help</div>
                   </div>
                 </div>
 
@@ -1229,7 +1311,7 @@ export const LandingPage: React.FC = () => {
                   <Clock className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="text-white font-bold">Mon - Sat: 08:00 - 19:00</div>
-                    <div className="text-[11px] text-slate-500">Sunday: Emergency Dispatch Only</div>
+                    <div className="text-[11px] text-slate-500">Sunday: Appointment Only</div>
                   </div>
                 </div>
 
@@ -1241,9 +1323,11 @@ export const LandingPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-2">
-                  <div className="p-2.5 rounded-xl bg-blue-950/70 border border-blue-900 text-[11px] text-blue-200">
-                    🚨 <strong>24/7 Roadside Assistance:</strong> Dial our toll-free hotline from your phone for instant mobile mechanic dispatch.
+                <div className="flex items-start space-x-2.5">
+                  <Mail className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-white font-bold">support@bayflow.pk</div>
+                    <div className="text-[11px] text-slate-500">We reply within 2 business hours</div>
                   </div>
                 </div>
               </div>

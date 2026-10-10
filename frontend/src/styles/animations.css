@@ -1,0 +1,185 @@
+/* ===================================================
+   BayFlow Landing Page — Premium Animation System
+   =================================================== */
+
+/* ---------- Scroll-reveal base state ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reveal with left slide */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Reveal with right slide */
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Reveal scale pop */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Stagger delays */
+.delay-100 { transition-delay: 100ms !important; }
+.delay-200 { transition-delay: 200ms !important; }
+.delay-300 { transition-delay: 300ms !important; }
+.delay-400 { transition-delay: 400ms !important; }
+.delay-500 { transition-delay: 500ms !important; }
+.delay-600 { transition-delay: 600ms !important; }
+
+/* ---------- Hero floating orbs ---------- */
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-22px) scale(1.05); }
+}
+.orb-float { animation: float-orb 7s ease-in-out infinite; }
+.orb-float-slow { animation: float-orb 11s ease-in-out infinite reverse; }
+
+/* ---------- Hero badge pulse glow ---------- */
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+  50%       { box-shadow: 0 0 18px 4px rgba(96,165,250,0.35); }
+}
+.badge-pulse { animation: badge-glow 3s ease-in-out infinite; }
+
+/* ---------- Sparkle spin ---------- */
+@keyframes sparkle-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.sparkle-spin { animation: sparkle-spin 8s linear infinite; }
+
+/* ---------- Counter count-up shimmer ---------- */
+@keyframes stat-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stat-reveal { animation: stat-reveal 0.5s ease forwards; }
+
+/* ---------- Card hover lift ---------- */
+.hover-lift {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -10px rgba(15, 30, 80, 0.18);
+}
+
+/* ---------- Image zoom on hover ---------- */
+.img-zoom img {
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.img-zoom:hover img {
+  transform: scale(1.07);
+}
+
+/* ---------- Shimmer loading bar ---------- */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #1d4ed8 0%, #60a5fa 40%, #38bdf8 60%, #1d4ed8 100%);
+  background-size: 800px 3px;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ---------- Service card icon bounce ---------- */
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  40%       { transform: translateY(-5px); }
+  70%       { transform: translateY(-2px); }
+}
+.service-card:hover .service-icon {
+  animation: icon-bounce 0.6s ease;
+}
+
+/* ---------- Scroll-cue arrow bounce ---------- */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%       { transform: translateY(8px); opacity: 1; }
+}
+.scroll-cue { animation: scroll-bounce 1.8s ease-in-out infinite; }
+
+/* ---------- Number ticker pulse on enter ---------- */
+@keyframes num-pop {
+  0%   { transform: scale(0.75); opacity: 0; }
+  70%  { transform: scale(1.06); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.num-pop { animation: num-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+/* ---------- Gradient text shimmer ---------- */
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.gradient-text-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* ---------- Partner logo hover ---------- */
+.partner-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.partner-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px -8px rgba(59,130,246,0.25);
+  border-color: rgba(96,165,250,0.5);
+}
+
+/* ---------- CTA button pulse ---------- */
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.5); }
+  50%       { box-shadow: 0 0 0 10px rgba(37,99,235,0); }
+}
+.cta-pulse { animation: cta-pulse 2.5s ease-in-out infinite; }
+
+/* ---------- Timeline step connectors ---------- */
+.step-connector {
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Testimonial card slide ---------- */
+.testimonial-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -12px rgba(15,30,80,0.15);
+}

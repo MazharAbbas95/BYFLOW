@@ -4,21 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Wrench,
   Bell,
-  Building2,
-  User as UserIcon,
   LogOut,
-  ChevronDown,
-  Check,
-  Phone,
-  Clock,
-  Sparkles,
   Menu,
   X,
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
-  ShieldCheck,
   ArrowRight,
 } from 'lucide-react';
 
@@ -27,8 +15,6 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
     user,
     logout,
     currentShop,
-    shops,
-    setCurrentShop,
     notifications,
     unreadCount,
     markNotificationRead,
@@ -37,7 +23,6 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
   } = useAuth();
 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showShopDropdown, setShowShopDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,34 +56,6 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
 
   return (
     <header className="sticky top-0 z-40 shadow-md">
-      {/* Top Utility Bar (Styled like Autorizen reference) */}
-      <div className="bg-slate-50 border-b border-slate-200 text-xs text-slate-600 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <Phone className="w-3.5 h-3.5 text-blue-600" />
-              <span>Call Us Now: <strong className="text-slate-900">+1 (555) 987-4643</strong> / <strong className="text-slate-900">+92 (51) 800-FLOW</strong></span>
-            </div>
-            <div className="flex items-center space-x-2 text-slate-500">
-              <Clock className="w-3.5 h-3.5 text-blue-600" />
-              <span>Opening Hours: <strong>Mon - Sat: 08:00 - 19:00</strong></span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <span className="inline-flex items-center space-x-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              <ShieldCheck className="w-3 h-3 text-emerald-600" />
-              <span>100% Certified Multi-Tenant Network</span>
-            </span>
-            <div className="flex items-center space-x-3 text-slate-400 pl-2 border-l border-slate-200">
-              <a href="#facebook" className="hover:text-blue-600 transition-colors" title="Facebook"><Facebook className="w-3.5 h-3.5" /></a>
-              <a href="#twitter" className="hover:text-blue-500 transition-colors" title="Twitter"><Twitter className="w-3.5 h-3.5" /></a>
-              <a href="#instagram" className="hover:text-rose-500 transition-colors" title="Instagram"><Instagram className="w-3.5 h-3.5" /></a>
-              <a href="#youtube" className="hover:text-red-600 transition-colors" title="YouTube"><Youtube className="w-3.5 h-3.5" /></a>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Navigation Bar (Deep Navy Theme matching Reference Image) */}
       <div className="bg-[#0B1E48] text-white">
@@ -125,51 +82,7 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
                 </div>
               </Link>
 
-              {/* Shop Switcher (Tenant isolation / multi-shop selector) */}
-              {shops.length > 0 && (
-                <div className="relative hidden lg:block">
-                  <button
-                    onClick={() => setShowShopDropdown(!showShopDropdown)}
-                    className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg border border-blue-900/60 bg-blue-950/60 hover:bg-blue-900/40 text-xs font-medium text-slate-200 transition-colors"
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="font-semibold text-white truncate max-w-[140px]">
-                      {currentShop?.name || 'Select Workshop'}
-                    </span>
-                    <span className="text-blue-300 text-[11px]">({currentShop?.city})</span>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                  </button>
 
-                  {showShopDropdown && (
-                    <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 text-slate-800 animate-in fade-in zoom-in-95">
-                      <div className="px-3.5 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
-                        <span>Select Workshop Tenant</span>
-                        <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-mono">Isolated DB</span>
-                      </div>
-                      <div className="max-h-60 overflow-y-auto divide-y divide-slate-50">
-                        {shops.map((s) => (
-                          <button
-                            key={s.id}
-                            onClick={() => {
-                              setCurrentShop(s);
-                              setShowShopDropdown(false);
-                            }}
-                            className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-blue-50/60 transition-colors ${
-                              currentShop?.id === s.id ? 'bg-blue-50/90 text-blue-800 font-semibold' : 'text-slate-700'
-                            }`}
-                          >
-                            <div>
-                              <div className="font-semibold text-slate-900">{s.name}</div>
-                              <div className="text-[11px] text-slate-500">{s.city} • {s.workingHours}</div>
-                            </div>
-                            {currentShop?.id === s.id && <Check className="w-4 h-4 text-blue-600" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Desktop Navigation Links */}
@@ -184,17 +97,6 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
                 </button>
               ))}
 
-              {/* AI Front Desk Modal trigger button */}
-              {onOpenAiFrontDesk && (
-                <button
-                  onClick={onOpenAiFrontDesk}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-cyan-200 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/40 rounded-lg transition-colors shadow-sm ml-1"
-                  title="Test AI Front Desk Voice Receptionist"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-300 animate-spin" style={{ animationDuration: '6s' }} />
-                  <span>AI Front Desk</span>
-                </button>
-              )}
             </nav>
 
             {/* Right Action Buttons */}
@@ -353,18 +255,7 @@ export const Navbar: React.FC<{ onOpenAiFrontDesk?: () => void }> = ({ onOpenAiF
               </button>
             ))}
 
-            {onOpenAiFrontDesk && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAiFrontDesk();
-                }}
-                className="w-full flex items-center space-x-2 px-3 py-2.5 text-sm font-bold text-cyan-300 bg-cyan-950/60 rounded-lg"
-              >
-                <Sparkles className="w-4 h-4 text-cyan-400" />
-                <span>AI Front Desk Voice Receptionist</span>
-              </button>
-            )}
+
 
             {!user && (
               <div className="pt-3 border-t border-blue-900/60 flex flex-col gap-2">
