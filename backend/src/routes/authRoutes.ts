@@ -1,3 +1,4 @@
+import { seedDatabase } from '../seed';
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -127,7 +128,7 @@ router.post('/demo-switch', async (req, res): Promise<void> => {
       return;
     }
 
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email },
       include: {
         memberships: {
@@ -137,6 +138,25 @@ router.post('/demo-switch', async (req, res): Promise<void> => {
         ownedShops: true,
       },
     });
+
+    if (!user) {
+      try {
+        console.log(`Demo account '${email}' not found. Auto-seeding database now...`);
+        await seedDatabase();
+        user = await prisma.user.findUnique({
+          where: { email },
+          include: {
+            memberships: {
+              where: { isActive: true },
+              include: { shop: true },
+            },
+            ownedShops: true,
+          },
+        });
+      } catch (seedErr) {
+        console.error('Error during on-demand auto-seed:', seedErr);
+      }
+    }
 
     if (!user) {
       res.status(404).json({ error: `Demo account '${email}' not found. Run seed script first.` });
@@ -178,6 +198,16 @@ router.post('/demo-switch', async (req, res): Promise<void> => {
 // Current user profile
 router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   res.json({ user: req.user });
+});
+
+
+router.post('/seed', async (req, res) => {
+  try {
+    await seedDatabase();
+    res.json({ status: 'ok', message: 'Database seeded successfully with demo accounts' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Seeding failed' });
+  }
 });
 
 export default router;

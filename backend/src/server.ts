@@ -1,3 +1,5 @@
+import { seedDatabase } from './seed';
+import { prisma } from './prisma/client';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
